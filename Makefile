@@ -16,6 +16,10 @@ FILE		= $(FLIMG) $(BOOTSECT) $(SYSTEM) $(DOS)
 
 default: Makefile
 	make -r run
+	make -r clean
+
+nrm: Makefile
+	make -r run
 
 
 
