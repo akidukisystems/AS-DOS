@@ -1,10 +1,10 @@
 ; boot.asm
 ; Please write this file for Floppy Image Boot Sector.
 
-CYLS			EQU	10
-INIV			EQU	1
+CYLS		EQU	10
+INIV		EQU	1
 
-%include		"filelist.inc"
+%include	"filelist.inc"
 
 [BITS 16]
 
@@ -12,7 +12,7 @@ INIV			EQU	1
 
 	JMP		Entry
 
-	TIMES 0x80-($-$$) DB 0
+	TIMES	0x80-($-$$)	DB	0
 
 
 Entry:
