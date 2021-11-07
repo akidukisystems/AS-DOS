@@ -50,20 +50,22 @@ DOS:
 	JE		KeyPut
 	CMP		AL, 8       ; BackSpace
 	JE		KeyDel
+/*================================ Unused Code
 	CMP		AL, 38		; Up Allow
 	JE		KeyUpScrl
 	CMP		AL, 40		; Down Allow
 	JE		KeyDwScrl
-;================================ Unused Code
-;	CMP		AL, 9		; Tab (Split On/Off)
-;	JE		SHORT	KeySOF
-;	CMP		AL, 0x20	; Space (Split)
-;	JE		SHORT	KeySplit
-;
+*/
+/*================================ Unused Code
+	CMP		AL, 9		; Tab (Split On/Off)
+	JE		SHORT	KeySOF
+	CMP		AL, 0x20	; Space (Split)
+	JE		SHORT	KeySplit
+
 ;_/_/_/_/   Check OVER RUN
-;	CMP 	DI, 0x0620  ; If ( DI >= 0x0620 )
-;	JAE 	SHORT	DOS
-;================================
+	CMP 	DI, 0x0620  ; If ( DI >= 0x0620 )
+	JAE 	SHORT	DOS
+================================*/
 ;_/_/_/_/   Output key code for memory (ES:DI)
 	MOV 	AH, 0x0E
 	XOR 	BX, BX
@@ -217,17 +219,6 @@ KeyDel_:
 ;	
 ;	JMP		SHORT	DOS
 ;================================
-
-KeyUpScrl:
-
-	MOV		AH, 0x06
-	MOV		AL, 0x01
-	INT		0x10
-	JMP		DOS
-
-KeyDwScrl:
-
-	JMP		DOS
 
 ;_/_/_/_/   Hang up
 Hang:
