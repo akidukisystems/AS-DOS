@@ -10,7 +10,7 @@ INIV		EQU	1
 
 	ORG		0x7C00
 
-	JMP		Entry
+	JMP		SHORT	Entry
 
 	TIMES	0x80-($-$$)	DB	0
 

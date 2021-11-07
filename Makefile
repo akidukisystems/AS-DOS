@@ -35,7 +35,7 @@ $(DOS): $(aDOS) $(iFLIST) $(iLIB) Makefile
 $(FLIMG): $(BOOTSECT) $(SYSTEM) $(DOS) Makefile
 	make -r $(BOOTSECT)
 	make -r $(DOS)
-	mformat -f 1440 -C -B $(BOOTSECT) -i $(FLIMG) ::
+	mformat -f 1440 -C -v AS-DOS -I 12 -B $(BOOTSECT) -i $(FLIMG) ::
 	mcopy -i $(FLIMG) $(SYSTEM) ::
 	mcopy -i $(FLIMG) $(DOS) ::
 
