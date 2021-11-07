@@ -3,7 +3,7 @@
 
 
 
-;\_\_\_\_\_\_\_\_ Function List
+;_/_/_/_/_/_/_/_/ Function List
 ;
 ;================================================================
 ;
@@ -41,7 +41,7 @@
 
 
 ;*************** Func: print
-;\_\_ Input
+;_/_/ Input
 ;AX = Not Using
 ;BX = Not Using
 ;CX = Not Using
@@ -66,13 +66,13 @@ print:
 
 
 ;**************** Func: Compare
-;\_\_ Input
+;_/_/ Input
 ;AX = Not Using
 ;BX = Compare Adrs
 ;CX = Not Using
 ;DX = Not Using
 ;SI = Compare Adrs
-;\_\_ Output
+;_/_/ Output
 ;AX = Result ( 0x00 = Match, 0x01 = Not Match )
 
 Compare:
@@ -102,10 +102,10 @@ Compare:
 
 
 ;**************** Func: Hex2Ascii
-;\_\_ Input
+;_/_/ Input
 ;BX = Input Hex Adress
 ;SI = Output Ascii Adress
-;\_\_ Output
+;_/_/ Output
 ;[SI] = Output Ascii code
 
 Hex2Ascii:
