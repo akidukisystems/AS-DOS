@@ -1,7 +1,7 @@
 ; asdos.asm
 ; This file is AS-DOS System file.
 
-%include		"filelist.inc"
+%include	"filelist.inc"
 
 [BITS 16]
 	ORG		FILE_INDEX + FILE_ASDOS
