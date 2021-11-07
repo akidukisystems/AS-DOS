@@ -10,7 +10,7 @@
 
 Entry:
 
-;\_\_\_\_	Reset Registers
+;_/_/_/_/	Reset Registers
 	XOR		AX, AX
 	MOV		BX, AX
 	MOV		CX, AX
@@ -21,13 +21,13 @@ Entry:
 	MOV		SI, AX
 	
 
-;\_\_\_\_   Print BootMessage
+;_/_/_/_/   Print BootMessage
 	MOV		SI, MSG_BOOTED
 	CALL	print
 	MOV 	SI, MSG_DOSPRMPT
 	CALL 	print
 
-;\_\_\_\_   Reset using memory
+;_/_/_/_/   Reset using memory
 	XOR		AX, AX
 	MOV		DI, 0x0540
 	MOV		CX, 0x06FF-0x0540
@@ -41,7 +41,7 @@ Entry:
 
 ;**************** DOS Prompt Routine
 DOS:
-;\_\_\_\_   Get pushed key code
+;_/_/_/_/   Get pushed key code
 	XOR 	AH, AH
 	INT 	0x16
 	CMP 	AL, 0x00    ; NULL code
@@ -56,11 +56,11 @@ DOS:
 ;	CMP		AL, 0x20	; Space (Split)
 ;	JE		SHORT	KeySplit
 ;
-;\_\_\_\_   Check OVER RUN
+;_/_/_/_/   Check OVER RUN
 ;	CMP 	DI, 0x0620  ; If ( DI >= 0x0620 )
 ;	JAE 	SHORT	DOS
 ;================================
-;\_\_\_\_   Output key code for memory (ES:DI)
+;_/_/_/_/   Output key code for memory (ES:DI)
 	MOV 	AH, 0x0E
 	XOR 	BX, BX
 	INT 	0x10
@@ -103,12 +103,12 @@ DOS:
 ;	JMP		SHORT	DOS
 ;================================	
 
-;\_\_\_\_ Pushed Enter Key
+;_/_/_/_/ Pushed Enter Key
 KeyPut:
 	MOV 	SI, MSG_CRLF
 	CALL 	print
 
-;\_\_\_\_\_\_\_\_ Commands!
+;_/_/_/_/_/_/_/_/ Commands!
 	PUSHA
 
 	MOV 	BX, 0x0600
@@ -144,7 +144,7 @@ KeyPut:
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
 
-;\_\_\_\_ Command Return Point!
+;_/_/_/_/ Command Return Point!
 Key_Ret:
 
 	POPA
@@ -163,7 +163,7 @@ Key_Ret:
 	JMP 	DOS
 
 Key_CMDNTFUND:
-;\_\_\_\_	Put command text
+;_/_/_/_/	Put command text
 	MOV 	SI, 0x0600
 	CALL	print
 	
@@ -179,7 +179,7 @@ KeyDel:
 	JMP 	DOS
 
 KeyDel_:
-	;\_\_\_\_ Screen
+	;_/_/_/_/ Screen
 	MOV 	SI, MSG_BS						; Delete screen text
 	CALL	print							; ACBDEF_	( start
 	MOV 	SI, MSG_SP						; ABCDEE    ( back cursor
@@ -188,7 +188,7 @@ KeyDel_:
 	CALL	print
 	
 ;================================ Unused Code
-;	;\_\_\_\_ Memory
+;	;_/_/_/_/ Memory
 ;	MOV		AX, DX
 ;	OR		AL, AL
 ;	JZ		SHORT	KeyDel_RemoveParam
@@ -214,7 +214,7 @@ KeyDel_:
 ;	JMP		SHORT	DOS
 ;================================
 
-;\_\_\_\_   Hang up
+;_/_/_/_/   Hang up
 Hang:
 	HLT
 	JMP 	SHORT	Hang
@@ -264,7 +264,7 @@ DCMD_LFCHK_MSG:
 	
 	
 	
-;\_\_\_\_   Messages
+;_/_/_/_/   Messages
 MSG:
 	DB		"Booting", 0x0D, 0x0A, 0x00
 
@@ -286,7 +286,7 @@ MSG_CMDNTFUND:
 MSG_BOOTED:
 	DB		"AS-DOS Ver.0.21", 0x0D, 0x0A, "Copyright (c) AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
 
-;\_\_\_\_ Commands
+;_/_/_/_/ Commands
 CMD_RESET:
 	DB		"reset", 0x00
 

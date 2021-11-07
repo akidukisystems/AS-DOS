@@ -17,7 +17,7 @@ INIV		EQU	1
 
 Entry:
 
-;\_\_\_\_	Reset Registers
+;_/_/_/_/	Reset Registers
 	XOR		AX, AX
 	MOV		BX, AX
 	MOV		CX, AX
@@ -27,7 +27,7 @@ Entry:
 	MOV		DI, AX
 	MOV		SI, AX
 
-;\_\_\_\_   MemTest
+;_/_/_/_/   MemTest
 MemTest:
 	MOV 	DI, 0x7E00
 	MOV 	SI, DI
@@ -45,7 +45,7 @@ MemTestLoop:
 
 
 
-;\_\_\_\_   Init Video
+;_/_/_/_/   Init Video
 	MOV		AX, INIV
 	OR		AX, AX
 	JNZ		InitVideo
@@ -66,17 +66,17 @@ NoInitVideo:
 
 
 
-;\_\_\_\_   Print BootMessage
+;_/_/_/_/   Print BootMessage
 	MOV 	SI, MSG
 	CALL 	print
 
-;\_\_\_\_   Init Memory at 0x7E00 to 0x7FFF
+;_/_/_/_/   Init Memory at 0x7E00 to 0x7FFF
 	XOR 	AX, AX
 	MOV 	DI, 0x7E00
 	MOV 	CX, 0x7FFF-0x7E00
 	REP 	STOSB							; Write Memory
 
-;\_\_\_\_	Read Floppy disk
+;_/_/_/_/	Read Floppy disk
 	MOV 	AX, 0x0820						; Read on memory at 0x8200
 	MOV 	ES, AX
 	XOR 	CH, CH
@@ -129,8 +129,8 @@ FloppyReadError:
 
 
 
-;\_\_\_\_\_\_\_\_ Function: print
-;\_\_ Input
+;_/_/_/_/_/_/_/_/ Function: print
+;_/_/ Input
 ;AX = Not Using
 ;BX = 
 ;     BL = Color Code	( Initalized video-display 4bit color )
@@ -157,7 +157,7 @@ print:
 
 
 
-;\_\_\_\_   Messages
+;_/_/_/_/   Messages
 MSG:
 	DB		"Booting AS-DOS...", 0x0D, 0x0A, 0x00
 

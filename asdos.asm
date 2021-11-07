@@ -10,7 +10,7 @@
 
 Entry:
 
-;\_\_\_\_	Reset Registers
+;_/_/_/_/	Reset Registers
 	XOR		AX, AX
 	MOV		BX, AX
 	MOV		CX, AX
@@ -21,7 +21,7 @@ Entry:
 	MOV		SI, AX
 	
 
-;\_\_\_\_	Check Installed Memorys
+;_/_/_/_/	Check Installed Memorys
 	INT		0x12
 	MOV		BX, AX
 	MOV		WORD [0x0502], BX
