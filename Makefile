@@ -21,6 +21,12 @@ default: Makefile
 nrm: Makefile
 	make -r run
 
+release: Makefile
+	make -r $(FLIMG)
+	mv -f $(FLIMG) ../$(FLIMG)
+	make -r clean
+
+
 
 
 $(BOOTSECT): $(aBOOTSECT) $(iFLIST) Makefile
