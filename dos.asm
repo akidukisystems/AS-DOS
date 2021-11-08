@@ -160,6 +160,9 @@ Key_Ret:
 
 	POPA
 
+	MOV		SI, MSG_CRLF
+	CALL	print
+
 	MOV 	SI, MSG_DOSPRMPT
 	CALL	print
 
