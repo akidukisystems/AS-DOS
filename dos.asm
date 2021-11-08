@@ -146,6 +146,12 @@ KeyPut:
 	OR		AX, AX
 	JZ		DCMD_LFCHK
 
+	MOV 	BX, 0x0600
+	MOV 	SI, CMD_EXIT
+	CALL	Compare
+	OR		AX, AX
+	JZ		DCMD_EXIT
+
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
 
@@ -246,7 +252,8 @@ DCMD_ROMB:
 	JMP 	SHORT	Hang
 
 DCMD_HELP_MSG1:
-	DB		"  reset     hang", 0x0D, 0x0A, "  help      romb", 0x0D, 0x0A, "  lfchk", 0x0D, 0x0A, 0x00
+	DB		"Active commands :", 0x0D, 0x0A
+	DB		" reset    hang     romb     help     lfchk    exit    ", 0x0D, 0x0A, 0x00
 	
 DCMD_LFCHK:
 	MOV		SI, DCMD_LFCHK_MSG
@@ -262,6 +269,10 @@ DCMD_LFCHK:
 	
 DCMD_LFCHK_MSG:
 	DB		"Loaded sector = 0x", 0x00
+
+DCMD_EXIT:
+	INT 	0x18
+	JMP 	Hang
 	
 	
 	
@@ -306,4 +317,7 @@ CMD_ROMB:
 	
 CMD_LFCHK:
 	DB		"lfchk", 0x00
+
+CMD_EXIT:
+	DB		"exit", 0x00
 
