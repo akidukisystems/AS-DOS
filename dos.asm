@@ -55,22 +55,16 @@ DOS:
 ;_/_/_/_/   Get pushed key code
 	XOR 	AH, AH
 	INT 	0x16
-	CMP 	AL, 0x00    ; NULL code
+	CMP 	AL, 0x00    				; NULL code
 	JE		DOS
-	CMP 	AL, 13      ; Return code
+	CMP 	AL, 13      				; Return code
 	JE		KeyPut
-	CMP		AL, 8       ; BackSpace
+	CMP		AL, 8       				; BackSpace
 	JE		KeyDel
-;================================ Unused Code
-;	CMP		AL, 38		; Up Allow
-;	JE		KeyUpScrl
-;	CMP		AL, 40		; Down Allow
-;	JE		KeyDwScrl
-;================================ Unused Code
 ;_/_/_/_/   Check OVER RUN
-;	CMP 	DI, 0x0620  ; If ( DI >= 0x0620 )
-;	JAE 	SHORT	DOS
-;================================
+	CMP 	DI, 0x06FE  ; If ( DI = 0x06FE )
+	JE 		SHORT	DOS
+
 ;_/_/_/_/   Output key code for memory (ES:DI)
 	MOV 	AH, 0x0E
 	XOR 	BX, BX
@@ -97,17 +91,21 @@ KeyPut:
 
 KeySplit:
 
-	LODSB
+	LODSB						; Load ES:SI from AL
 
-	OR		AL, AL
+	OR		AL, AL				; if AL = null
 	JZ		KeySplitDone
 
 	CMP		AL, 0x20
 	JE		KeySplit_SP
 
+	MOV		BL, BYTE [0x0542]	; Buffer Over Run
+	CMP		BL, 0x1F			; if writed letter count is 0x1F
+	JE		KeySplit_SP
+
 	STOSB
 
-	MOV		BL, BYTE [0x0542]
+	MOV		BL, BYTE [0x0542]	; writed letter count
 	INC		BL
 	MOV		BYTE [0x0542], BL
 
@@ -115,10 +113,10 @@ KeySplit:
 
 KeySplit_SP:
 
-	MOV		BH, BYTE [0x0542]
-	MOV		BL, 0x20
-	SUB		BL, BH
-	XOR		BH, BH
+	MOV		BH, BYTE [0x0542]	; Next parameter
+	MOV		BL, 0x20			; DI = DI + ( BH - 0x20 )
+	SUB		BL, BH				; BH is writed letter count
+	XOR		BH, BH				; DI is Parameter Index
 
 	MOV		BYTE [0x0542], BH
 
