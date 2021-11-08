@@ -1,4 +1,6 @@
-#Makefile
+# AS-DOS Makefile
+# Copyright (c) 2021 AkidukiSystems All Rights Reserved.
+
 FLIMG		= floppy.img
 BOOTSECT	= boot.bin
 SYSTEM		= asdos.sys

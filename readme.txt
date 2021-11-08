@@ -28,5 +28,6 @@
 
 
 
-    2021年 11月 7日
-    AkidukiSystems
+作成日：2021年 11月 7日
+更新日：2021年 11月 7日
+AkidukiSystems

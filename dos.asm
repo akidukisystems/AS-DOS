@@ -289,7 +289,7 @@ MSG_CMDNTFUND:
 	DB		" is not found", 0x0D, 0x0A, 0x00
 	
 MSG_BOOTED:
-	DB		"AS-DOS Ver.0.3", 0x0D, 0x0A, "Copyright (c) AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
+	DB		"AS-DOS Ver.0.3", 0x0D, 0x0A, "Copyright (c) 2021 AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
 
 ;_/_/_/_/ Commands
 CMD_RESET:
