@@ -22,6 +22,8 @@ Entry:
 	
 
 ;_/_/_/_/   Print BootMessage
+	MOV		SI, MSG_BOOT
+	CALL	print
 	MOV		SI, MSG_BOOTED
 	CALL	print
 	MOV 	SI, MSG_DOSPRMPT
@@ -117,6 +119,12 @@ KeyPut:
 	PUSHA
 
 	MOV 	BX, 0x0600
+	MOV 	SI, MSG_NULL
+	CALL	Compare
+	OR		AX, AX
+	JZ		Key_Ret
+
+	MOV 	BX, 0x0600
 	MOV 	SI, CMD_RESET
 	CALL	Compare
 	OR		AX, AX
@@ -152,6 +160,12 @@ KeyPut:
 	OR		AX, AX
 	JZ		DCMD_EXIT
 
+	MOV 	BX, 0x0600
+	MOV 	SI, CMD_CLS
+	CALL	Compare
+	OR		AX, AX
+	JZ		DCMD_CLS
+
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
 
@@ -159,9 +173,6 @@ KeyPut:
 Key_Ret:
 
 	POPA
-
-	MOV		SI, MSG_CRLF
-	CALL	print
 
 	MOV 	SI, MSG_DOSPRMPT
 	CALL	print
@@ -248,6 +259,8 @@ DCMD_HANG:
 DCMD_HELP:
 	MOV 	SI, DCMD_HELP_MSG1
 	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
 	JMP 	SHORT	Key_Ret
 
 DCMD_ROMB:
@@ -256,7 +269,7 @@ DCMD_ROMB:
 
 DCMD_HELP_MSG1:
 	DB		"Active commands :", 0x0D, 0x0A
-	DB		" reset    hang     romb     help     lfchk    exit    ", 0x0D, 0x0A, 0x00
+	DB		" reset    hang     romb     help     lfchk    exit     cls     ", 0x0D, 0x0A, 0x00
 	
 DCMD_LFCHK:
 	MOV		SI, DCMD_LFCHK_MSG
@@ -268,6 +281,8 @@ DCMD_LFCHK:
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
 	JMP		Key_Ret
 	
 DCMD_LFCHK_MSG:
@@ -276,6 +291,16 @@ DCMD_LFCHK_MSG:
 DCMD_EXIT:
 	INT 	0x18
 	JMP 	Hang
+
+DCMD_CLS:
+	XOR 	AH, AH
+	MOV 	AL, 0x02
+	INT 	0x10
+
+	MOV		SI, MSG_BOOTED
+	CALL	print
+
+	JMP		Key_Ret
 	
 	
 	
@@ -284,8 +309,11 @@ DCMD_EXIT:
 	
 	
 ;_/_/_/_/   Messages
-MSG:
-	DB		"Booting", 0x0D, 0x0A, 0x00
+MSG_BOOT:
+	DB		"Loading DOS prompt...", 0x0D, 0x0A
+
+MSG_NULL:
+	DB		0x00
 
 MSG_CRLF:
 	DB		0x0D, 0x0A, 0x00
@@ -324,3 +352,5 @@ CMD_LFCHK:
 CMD_EXIT:
 	DB		"exit", 0x00
 
+CMD_CLS:
+	DB		"cls", 0x00
