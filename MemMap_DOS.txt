@@ -12,11 +12,14 @@ MemMap
 0x0540 ~ 447Bytes ( 0x06FF )	: DOSPrompt
 	0x0540 ~ 1Byte					: Split On/Off	( bool )
 	0x0541 ~ 1Byte					: Split Counter	( 0x00 ~ 0x08 )
-	0x0600 ~ 32Bytes ( 0x061F )		: Command
-	0x0620 ~ 32Bytes ( 0x063F )		: Parameter
-	0x0640 ~ 32Bytes ( 0x065F )		: Parameter
-	0x0660 ~ 32Bytes ( 0x067F )		: Parameter
-	0x0680 ~ 32Bytes ( 0x069F )		: Parameter
-	0x06A0 ~ 32Bytes ( 0x06BF )		: Parameter
-	0x06C0 ~ 32Bytes ( 0x06DF )		: Parameter
-	0x06E0 ~ 32Bytes ( 0x06FF )		: Parameter
+	0x0542 ~ 1Byte					: Writed String Counter
+	0x0600 ~ 256Bytes ( 0x06FF )	: Command
+	0x0700 ~ 256Bytes ( 0x06FF )	: Splited Command
+	( 0x0700 ~ 32Bytes ( 0x071F ) ) : Command Name
+	( 0x0720 ~ 32Bytes ( 0x073F ) ) : Command Parameter
+	( 0x0740 ~ 32Bytes ( 0x075F ) ) : Command Parameter
+	( 0x0760 ~ 32Bytes ( 0x077F ) ) : Command Parameter
+	( 0x0780 ~ 32Bytes ( 0x079F ) ) : Command Parameter
+	( 0x07A0 ~ 32Bytes ( 0x07BF ) ) : Command Parameter
+	( 0x07C0 ~ 32Bytes ( 0x07DF ) ) : Command Parameter
+	( 0x07E0 ~ 32Bytes ( 0x07FF ) ) : Command Parameter
