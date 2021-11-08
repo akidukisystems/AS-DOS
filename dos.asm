@@ -32,7 +32,7 @@ Entry:
 ;_/_/_/_/   Reset using memory
 	XOR		AX, AX
 	MOV		DI, 0x0540
-	MOV		CX, 0x06FF-0x0540
+	MOV		CX, 0x07FF-0x0540
 	REP		STOSB
 	
 	MOV		DI, 0x0600
@@ -58,11 +58,6 @@ DOS:
 ;	CMP		AL, 40		; Down Allow
 ;	JE		KeyDwScrl
 ;================================ Unused Code
-;	CMP		AL, 9		; Tab (Split On/Off)
-;	JE		SHORT	KeySOF
-;	CMP		AL, 0x20	; Space (Split)
-;	JE		SHORT	KeySplit
-;
 ;_/_/_/_/   Check OVER RUN
 ;	CMP 	DI, 0x0620  ; If ( DI >= 0x0620 )
 ;	JAE 	SHORT	DOS
@@ -80,87 +75,95 @@ DOS:
 
 
 
-;================================ Unused Code
-;KeySOF:
-;KeySplit:
-;	MOV		BX, [0x0540]
-;	OR		BX, BX
-;	JZ		SHORT	KeySplitDo
-;	JMP		SHORT	DOS
-;	
-;KeySplitDo:
-;	MOV		BX, [0x0541]
-;	INC		BX
-;	CMP		BX, 0x08
-;	JNE		SHORT	KeySplitDoCount
-;	JMP		SHORT	DOS
-;	
-;KeySplitDoCount:
-;	MOV		[0x0541], BX
-;	MOV		AX, 0x20		; AX = AX x BX
-;	MUL		BX
-;	MOV		DI, 0x0600
-;	ADD		DI, AX
-;	
-;	MOV		AH, 0x0E
-;	MOV		AL, 0x20
-;	XOR		BX, BX
-;	INT		0x10
-;	
-;	JMP		SHORT	DOS
-;================================	
-
 ;_/_/_/_/ Pushed Enter Key
 KeyPut:
 	MOV 	SI, MSG_CRLF
 	CALL 	print
 
+;_/_/_/_/_/_/_/_/ Command Split
+
+	MOV		SI, 0x0600
+	MOV		DI, 0x0700
+	XOR		AX, AX
+
+KeySplit:
+
+	LODSB
+
+	OR		AL, AL
+	JZ		KeySplitDone
+
+	CMP		AL, 0x20
+	JE		KeySplit_SP
+
+	STOSB
+
+	MOV		BL, BYTE [0x0542]
+	INC		BL
+	MOV		BYTE [0x0542], BL
+
+	JMP		KeySplit
+
+KeySplit_SP:
+
+	MOV		BH, BYTE [0x0542]
+	MOV		BL, 0x20
+	SUB		BL, BH
+	XOR		BH, BH
+
+	MOV		BYTE [0x0542], BH
+
+	ADD		DI, BX
+	JMP		SHORT	KeySplit
+
+KeySplitDone:
+
 ;_/_/_/_/_/_/_/_/ Commands!
 	PUSHA
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, MSG_NULL
 	CALL	Compare
 	OR		AX, AX
 	JZ		Key_Ret
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_RESET
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_RESET
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_HANG
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_HANG
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_HELP
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_HELP
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_ROMB
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_ROMB
 	
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_LFCHK
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_LFCHK
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_EXIT
 	CALL	Compare
 	OR		AX, AX
 	JZ		DCMD_EXIT
 
-	MOV 	BX, 0x0600
+	MOV 	BX, 0x0700
 	MOV 	SI, CMD_CLS
 	CALL	Compare
 	OR		AX, AX
@@ -180,7 +183,7 @@ Key_Ret:
 	;Clear commands
 	XOR 	AX, AX
 	MOV 	DI, 0x0540
-	MOV 	CX, 0x06FF-0x0540
+	MOV 	CX, 0x07FF-0x0540
 	REP 	STOSB
 
 	MOV 	DI, 0x0600
@@ -211,13 +214,6 @@ KeyDel_:
 	CALL	print							; ABCDE _	( write space code
 	MOV 	SI, MSG_BS						; ABCDE_	( back cursor
 	CALL	print
-	
-;================================ Unused Code
-;	;_/_/_/_/ Memory
-;	MOV		AX, DX
-;	OR		AL, AL
-;	JZ		SHORT	KeyDel_RemoveParam
-;================================
 
 	XOR 	AL, AL							; Delete Memory Text
 	DEC 	DI
@@ -225,18 +221,7 @@ KeyDel_:
 	DEC 	DI
 
 	JMP 	DOS
-	
-;================================ Unused Code
-;KeyDel_RemoveParam:
-;	MOV		BX, [0x0541]
-;	DEC		BX
-;	MOV		[0x0541], BX
-;	MOV		AX, 0x20
-;	MUL		BX
-;	MOV		DI, 0x0600
-;	ADD		DI, AX
-;	
-;	JMP		SHORT	DOS
+
 ;================================
 
 ;_/_/_/_/   Hang up
@@ -261,7 +246,7 @@ DCMD_HELP:
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
-	JMP 	SHORT	Key_Ret
+	JMP 	Key_Ret
 
 DCMD_ROMB:
 	INT 	0x18
