@@ -143,12 +143,6 @@ KeySplitDone:
 	JZ		DCMD_RESET
 
 	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_HANG
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_HANG
-
-	MOV 	BX, _CMD_NAME
 	MOV 	SI, CMD_HELP
 	CALL	Compare
 	OR		AX, AX
@@ -251,19 +245,12 @@ DCMD_HANG:
 	JMP 	SHORT	Hang
 
 DCMD_HELP:
-	MOV 	SI, DCMD_HELP_MSG1
-	CALL	print
-	MOV		SI, MSG_CRLF
-	CALL	print
-	JMP 	Key_Ret
+%include	"dos_help.asm"
+	
 
 DCMD_ROMB:
 	INT 	0x18
-	JMP 	SHORT	Hang
-
-DCMD_HELP_MSG1:
-	DB		"Active commands :", 0x0D, 0x0A
-	DB		" reset    hang     romb     help     lfchk    exit     cls     ", 0x0D, 0x0A, 0x00
+	JMP 	Hang
 	
 DCMD_LFCHK:
 	MOV		SI, DCMD_LFCHK_MSG
