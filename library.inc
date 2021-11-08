@@ -112,29 +112,36 @@ Hex2Ascii:
 	PUSH	AX
 	PUSH	CX
 	PUSH	DX
-	ADD		SI, 0x04
-	XOR		AX, AX
-	MOV		[SI], AX
+						; Set NULL code
+	ADD		SI, 0x04	; SI + 4
+	XOR		AX, AX		
+	MOV		[SI], AX	; Adress SI = 0
 	DEC		SI
 	
 .loop:
-	MOV		AL, [BX]
-	AND		AL, 0xF0
+						; Load Higher 8bit Adress BX
+	MOV		AL, [BX]	; AL = Adress BX
+	AND		AL, 0xF0	; Mask Higher 8bit
 	SHR		AL, 4		; Bit shift  L -> R (4bits)
-	MOV		DL, [BX]
-	AND		DL, 0x0F
+
+						; Load Lower 8bit Adress BX
+	MOV		DL, [BX]	; DL = Adress BX
+	AND		DL, 0x0F	; Mask Lower 8bit
 	INC		BX
 	INC		CX
-	CMP		CX, 0x02	; If ( CX > 0x02 )
-	JA		SHORT	.fin
-	ADD		AL, 0x30
-	CMP		AL, 0x3A	; If ( AL >= 0x3A )
-	JAE		SHORT	.alpAL
+						; If converted 16bit binary value, go to fin: .
+	CMP		CX, 0x02
+	JA		SHORT	.fin	; if ( CX > 0x02 )
+
+	ADD		AL, 0x30	; AL += 0x30 ( binary value 0x01 -> ASCII value 0x31 '1' )
+	CMP		AL, 0x3A	; 0x09 + 0x30 = 0x39 '9', 0x0A + 0x30 = 0x3A. 0x3A is not 'A'. 'A' is 0x41.
+	JAE		SHORT	.alpAL	; if ( CX >= 0x3A )
 .alpALret:
-	ADD		DL, 0x30
-	CMP		DL, 0x3A	; If ( DL >= 0x3A )
-	JAE		SHORT	.alpDL
+	ADD		DL, 0x30	; next process. ( register DL )
+	CMP		DL, 0x3A
+	JAE		SHORT	.alpDL	; if ( CX >= 0x3A )
 .alpDLret:
+						; Write result for memory.
 	MOV		[SI], DL
 	DEC		SI
 	MOV		[SI], AL
@@ -143,11 +150,11 @@ Hex2Ascii:
 	JMP		SHORT	.loop
 	
 .alpAL:
-	ADD		AL, 0x07
+	ADD		AL, 0x07			; The difference between '9' and 'A' is 0x07.
 	JMP		SHORT	.alpALret
 	
 .alpDL:
-	ADD		DL, 0x07
+	ADD		DL, 0x07			; The difference between '9' and 'A' is 0x07.
 	JMP		SHORT	.alpDLret
 	
 .fin:
@@ -155,4 +162,5 @@ Hex2Ascii:
 	POP		CX
 	POP		DX
 	
-	RET
+	RET 
+	
