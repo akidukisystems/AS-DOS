@@ -134,41 +134,65 @@ KeySplitDone:
 	OR		AX, AX
 	JZ		Key_Ret
 
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_RESET
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_RESET
-
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_HELP
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_HELP
-
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_ROMB
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_ROMB
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_RESET
+	CALL	Command
 	
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_LFCHK
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_LFCHK
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_HELP
+	CALL	Command
 
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_EXIT
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_EXIT
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_ROMB
+	CALL	Command
 
-	MOV 	BX, _CMD_NAME
-	MOV 	SI, CMD_CLS
-	CALL	Compare
-	OR		AX, AX
-	JZ		DCMD_CLS
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_LFCHK
+	CALL	Command
+
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_EXIT
+	CALL	Command
+
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_CLS
+	CALL	Command
+
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_RESET
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_RESET
+;
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_HELP
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_HELP
+;
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_ROMB
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_ROMB
+;	
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_LFCHK
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_LFCHK
+;
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_EXIT
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_EXIT
+;
+;	MOV 	BX, _CMD_NAME
+;	MOV 	SI, CMD_CLS
+;	CALL	Compare
+;	OR		AX, AX
+;	JZ		DCMD_CLS
 
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
@@ -236,21 +260,36 @@ Hang:
 
 ;**************** Command Process
 DCMD_RESET:
+	DB		"reset"
+	TIMES	12-5	DB	0x00
+
 	INT 	0x19
-	JMP 	SHORT	Hang
+	RET
 
 DCMD_HANG:
+	DB		"hang"
+	TIMES	12-4	DB	0x00
+
 	JMP 	SHORT	Hang
 
 DCMD_HELP:
+	DB		"help"
+	TIMES	12-4	DB	0x00
+
 %include	"dos_help.asm"
 	
 
 DCMD_ROMB:
+	DB		"romb"
+	TIMES	12-4	DB	0x00
+
 	INT 	0x18
 	JMP 	Hang
 	
 DCMD_LFCHK:
+	DB		"lfchk"
+	TIMES	12-5	DB	0x00
+
 	MOV		SI, DCMD_LFCHK_MSG
 	CALL	print
 	MOV		BX, 0x0500
@@ -268,10 +307,16 @@ DCMD_LFCHK_MSG:
 	DB		"Loaded sector = 0x", 0x00
 
 DCMD_EXIT:
+	DB		"exit"
+	TIMES	12-4	DB	0x00
+
 	INT 	0x18
 	JMP 	Hang
 
 DCMD_CLS:
+	DB		"cls"
+	TIMES	12-3	DB	0x00
+
 	XOR 	AH, AH
 	MOV 	AL, 0x02
 	INT 	0x10

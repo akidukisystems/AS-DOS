@@ -164,3 +164,25 @@ Hex2Ascii:
 	
 	RET 
 	
+
+;SI = cmdname adrs and cmd
+
+Command:
+	PUSH	DI
+
+	MOV		DI, SI
+	CALL	Compare
+	OR		AX, AX
+	JZ		.yes
+
+	POP		DI
+
+	RET
+
+.yes:
+	ADD		DI, 12
+	CALL	DI
+
+	POP		DI
+
+	RET
