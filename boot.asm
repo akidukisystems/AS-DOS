@@ -3,6 +3,7 @@
 
 CYLS		EQU	10
 INIV		EQU	1
+WAITN		EQU	1
 
 %include	"filelist.inc"
 
@@ -12,7 +13,7 @@ INIV		EQU	1
 
 	JMP		SHORT	Entry
 
-	TIMES	0x80-($-$$)	DB	0
+	TIMES	0x40-($-$$)	DB	0
 
 
 Entry:
@@ -72,9 +73,46 @@ NoInitVideo:
 
 ;_/_/_/_/   Init Memory at 0x7E00 to 0x7FFF
 	XOR 	AX, AX
-	MOV 	DI, 0x7E00
-	MOV 	CX, 0x7FFF-0x7E00
+	MOV 	DI, 0x0500
+	MOV 	CX, 0x7BFF-0x0500
 	REP 	STOSB							; Write Memory
+
+	XOR		BL, BL
+
+;_/_/_/_/	KeyCheck
+KeyCheckLoop:
+;_/_/_/_/	Wait
+
+	MOV		AH, 0x86
+	MOV		CX, WAITN						; Wait CX:DX ms
+	XOR		DX, DX
+	INT		0x15
+
+	INC		BL
+	CMP		BL, 10
+	JE		KeyCheckLoopRet
+
+	MOV		AH, 0x01						; Check Key
+	INT		0x16							; ( If Buffer is NULL, return routine. )
+	JZ		KeyCheckLoop					; Check Key Buffer
+
+	XOR		AH, AH
+	INT		0x16
+
+	CMP		AL, 0x20						; If pushed F1 key
+	JE		KeySP
+
+	JMP		KeyCheckLoop
+
+KeySP:
+
+	MOV		SI, MSG_BOOTCANCEL
+	CALL	print
+
+	INT		0x18
+
+KeyCheckLoopRet:
+
 
 ;_/_/_/_/	Read Floppy disk
 	MOV 	AX, 0x0820						; Read on memory at 0x8200
@@ -128,7 +166,6 @@ FloppyReadError:
 
 
 
-
 ;_/_/_/_/_/_/_/_/ Function: print
 ;_/_/ Input
 ;AX = Not Using
@@ -169,6 +206,9 @@ MSGERR:
 	
 MSG_NoInitVideo:
 	DB		"WARN: AS-DOS is not initialized video-display.", 0x0D, 0x0A, 0x00
+
+MSG_BOOTCANCEL:
+	DB		"Canceled boot system.", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
 
 
 
