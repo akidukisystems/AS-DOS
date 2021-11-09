@@ -29,18 +29,17 @@ Entry:
 	MOV		SI, AX
 
 ;_/_/_/_/   MemTest
-MemTest:
+	MOV 	DI, 0x0500
+	MOV 	BX, 0x7BFF					; Memtest 0x7E00 to 0x7FFF
+	CALL	MemTest
+	OR		AX, AX
+	JNZ		MemErr
+
 	MOV 	DI, 0x7E00
-	MOV 	SI, DI
-	MOV 	CX, 0x7FFF-0x7E00					; Memtest 0x7E00 to 0x7FFF
-	
-MemTestLoop:
-	MOV 	AX, 0xFF
-	STOSB										; Write Memory
-	LODSB										; Load Memory
-	CMP 	AL, 0xFF
-	DEC 	CX
-	JNP 	SHORT	MemTestLoop
+	MOV 	BX, 0xFFFF					; Memtest 0x7E00 to 0x7FFF
+	CALL	MemTest
+	OR		AX, AX
+	JNZ		MemErr
 
 
 
@@ -49,12 +48,12 @@ MemTestLoop:
 ;_/_/_/_/   Init Video
 	MOV		AX, INIV
 	OR		AX, AX
-	JNZ		InitVideo
+	JNZ		SHORT	InitVideo
 	
 	MOV		SI, MSG_NoInitVideo
 	CALL	print
 	
-	JMP		NoInitVideo
+	JMP		SHORT	NoInitVideo
 	
 InitVideo:
 	XOR 	AH, AH
@@ -106,7 +105,7 @@ KeyCheckLoop:
 
 KeySP:
 
-	MOV		SI, MSG_BOOTCANCEL
+	MOV		SI, MSG_CRLF
 	CALL	print
 
 	INT		0x18
@@ -163,6 +162,14 @@ FloppyReadError:
 	CALL	print
 	INT		0x18
 
+MemErr:
+	MOV		SI, MSG_MEMERR
+	CALL	print
+	
+Hang:
+	HLT
+	JMP		Hang
+
 
 
 
@@ -190,6 +197,36 @@ print:
 	POP		AX
 	RET
 
+;DI = start
+;BX = end
+MemTest:
+	PUSH	CX
+
+	MOV 	SI, DI
+	MOV		CX, BX
+	SUB		CX, DI
+	
+.loop:
+	MOV 	AL, 0xFF
+	STOSB										; Write Memory
+	LODSB										; Load Memory
+	CMP 	AL, 0xFF
+	JNE		.err
+	DEC 	CX
+	JNP 	SHORT	.loop
+
+	XOR		AX, AX
+	POP		CX
+	RET
+
+.err:
+	MOV		AX, 0x01
+	POP		CX
+	RET
+
+
+
+
 
 
 
@@ -202,13 +239,13 @@ MSG_CRLF:
 	DB		0x0D, 0x0A, 0x00
 	
 MSGERR:
-	DB		"WARN: Cannot read and boot AS-DOS. Changing ROM-BASIC mode...", 0x0D, 0x0A, 0x00
+	DB		"E: Floppy has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x00
 	
 MSG_NoInitVideo:
-	DB		"WARN: AS-DOS is not initialized video-display.", 0x0D, 0x0A, 0x00
+	DB		"W: AS-DOS isn't initialized video.", 0x0D, 0x0A, 0x00
 
-MSG_BOOTCANCEL:
-	DB		"Canceled boot system.", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+MSG_MEMERR:
+	DB		"E: Memory has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x00
 
 
 
