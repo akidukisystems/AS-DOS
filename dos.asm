@@ -56,7 +56,7 @@ DOS:
 	XOR 	AH, AH
 	INT 	0x16
 	CMP 	AL, 0x00    				; NULL code
-	JE		DOS
+	JE		SHORT	DOS
 	CMP 	AL, 13      				; Return code
 	JE		KeyPut
 	CMP		AL, 8       				; BackSpace
@@ -356,25 +356,3 @@ MSG_CMDNTFUND:
 	
 MSG_BOOTED:
 	DB		"AS-DOS Ver.0.4", 0x0D, 0x0A, "Copyright (c) 2021 AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
-
-;_/_/_/_/ Commands
-CMD_RESET:
-	DB		"reset", 0x00
-
-CMD_HANG:
-	DB		"hang", 0x00
-
-CMD_HELP:
-	DB		"help", 0x00
-
-CMD_ROMB:
-	DB		"romb", 0x00
-	
-CMD_LFCHK:
-	DB		"lfchk", 0x00
-
-CMD_EXIT:
-	DB		"exit", 0x00
-
-CMD_CLS:
-	DB		"cls", 0x00
