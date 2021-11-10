@@ -9,7 +9,7 @@ MemMap
 	0x0510 ~ 5Bytes ( 0x0514 )		: Installed Memory ( ASCII, HEX )
 	0x0515 ~ 6Bytes ( 0x051A )		: Installed Memory ( ASCII, DEC )
 
-0x0540 ~ 447Bytes ( 0x06FF )	: DOSPrompt
+0x0540 ~ 447Bytes ( 0x07FF )	: DOSPrompt
 	0x0542 ~ 1Byte					: Writed String Counter
 	0x0600 ~ 256Bytes ( 0x06FF )	: Command
 	0x0700 ~ 256Bytes ( 0x06FF )	: Splited Command		*
