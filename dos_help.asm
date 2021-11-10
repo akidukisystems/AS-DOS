@@ -15,43 +15,46 @@ DCMD_HELP_MSG1:
 	DB		" reset     romb     help     lfchk    exit     cls     ", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail:
-    MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_RESET
-    CALL    Compare
+
+    MOV		BX, _CMD_PRM0
+	MOV		SI, DCMD_RESET
+	CALL	Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_RESET
 
     MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_HELP
+    MOV     SI, DCMD_HELP
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_HELP
 
     MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_ROMB
+    MOV     SI, DCMD_ROMB
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_ROMB
 
     MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_LFCHK
+    MOV     SI, DCMD_LFCHK
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_LFCHK
 
     MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_EXIT
+    MOV     SI, DCMD_EXIT
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_EXIT
 
     MOV     BX, _CMD_PRM0
-    MOV     SI, CMD_CLS
+    MOV     SI, DCMD_CLS
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_CLS
 
     JMP     DCMD_HELP_detail_NotMatch
+
+
 
 DCMD_HELP_detail_RESET:
     MOV     SI, DCMD_HELP_detail_RESET_MSG
