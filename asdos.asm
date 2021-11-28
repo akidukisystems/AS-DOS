@@ -23,8 +23,7 @@ Entry:
 
 ;_/_/_/_/	Check Installed Memorys
 	INT		0x12
-	MOV		BX, AX
-	MOV		WORD [0x0502], BX
+	MOV		WORD [0x0502], AX
 	
 	XOR		AX, AX
 
