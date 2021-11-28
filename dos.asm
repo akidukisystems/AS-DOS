@@ -28,7 +28,7 @@ Entry:
 	MOV		DS, AX
 	MOV		DI, AX
 	MOV		SI, AX
-	
+
 
 ;_/_/_/_/   Print BootMessage
 	MOV		SI, MSG_BOOT
@@ -43,9 +43,9 @@ Entry:
 	MOV		DI, 0x0540
 	MOV		CX, 0x07FF-0x0540
 	REP		STOSB
-	
+
 	MOV		DI, 0x0600
-	
+
 	XOR		CX, CX
 
 
@@ -99,15 +99,17 @@ KeySplit:
 	CMP		AL, 0x20
 	JE		KeySplit_SP
 
-	MOV		BL, BYTE [0x0542]	; Buffer Over Run
-	CMP		BL, 0x1F			; if writed letter count is 0x1F
+									; Buffer Over Run Protect
+	CMP		BYTE [0x0542], 0x1F		; if writed letter count is 0x1F
 	JE		KeySplit_SP
 
 	STOSB
 
-	MOV		BL, BYTE [0x0542]	; writed letter count
-	INC		BL
-	MOV		BYTE [0x0542], BL
+	INC		BYTE [0x0542]
+
+;	MOV		BL, BYTE [0x0542]	; writed letter count
+;	INC		BL
+;	MOV		BYTE [0x0542], BL
 
 	JMP		KeySplit
 
@@ -137,7 +139,7 @@ KeySplitDone:
 	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_RESET
 	CALL	Command
-	
+
 	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_HELP
 	CALL	Command
@@ -175,7 +177,7 @@ KeySplitDone:
 ;	CALL	Compare
 ;	OR		AX, AX
 ;	JZ		DCMD_ROMB
-;	
+;
 ;	MOV 	BX, _CMD_NAME
 ;	MOV 	SI, CMD_LFCHK
 ;	CALL	Compare
@@ -219,7 +221,7 @@ Key_CMDNTFUND:
 ;_/_/_/_/	Put command text
 	MOV 	SI, 0x0600
 	CALL	print
-	
+
 	MOV 	SI, MSG_CMDNTFUND
 	CALL	print
 	JMP 	SHORT	Key_Ret
@@ -277,7 +279,7 @@ DCMD_HELP:
 	TIMES	12-4	DB	0x00
 
 %include	"dos_help.asm"
-	
+
 
 DCMD_ROMB:
 	DB		"romb"
@@ -285,7 +287,7 @@ DCMD_ROMB:
 
 	INT 	0x18
 	JMP 	Hang
-	
+
 DCMD_LFCHK:
 	DB		"lfchk"
 	TIMES	12-5	DB	0x00
@@ -302,7 +304,7 @@ DCMD_LFCHK:
 	MOV		SI, MSG_CRLF
 	CALL	print
 	JMP		Key_Ret
-	
+
 DCMD_LFCHK_MSG:
 	DB		"Loaded sector = 0x", 0x00
 
@@ -325,13 +327,13 @@ DCMD_CLS:
 	CALL	print
 
 	JMP		Key_Ret
-	
-	
-	
+
+
+
 %include	"library.inc"
-	
-	
-	
+
+
+
 ;_/_/_/_/   Messages
 MSG_BOOT:
 	DB		"Loading DOS prompt...", 0x0D, 0x0A
@@ -349,10 +351,11 @@ MSG_SP:
 	DB		" ", 0x00
 
 MSG_DOSPRMPT:
-	DB		"AS-DOS System> ", 0x00
+	DB		"System @ ", 0x00
 
 MSG_CMDNTFUND:
 	DB		" is not found", 0x0D, 0x0A, 0x00
-	
+
 MSG_BOOTED:
-	DB		"AS-DOS Ver.0.5", 0x0D, 0x0A, "Copyright (c) 2021 AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
+	DB		"AS-DOS Ver.0.5", 0x0D, 0x0A
+	DB		"Copyright (c) 2021 AkidukiSystems All Rights Reserved.", 0x0A, 0x0D, 0x00
