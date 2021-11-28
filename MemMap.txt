@@ -1,6 +1,6 @@
 Memory Map
 i386 Real Mode (16bit, A20Line is enabled)
-0x000000 ~ 0x10FFEF 1MiB
+0x000000 ~ 0x10FFEF 1MiB + 0xFFEF
 
 0x000000 ~ 0x0003FF : Int Vecor Table
 0x000400 ~ 0x0004FF : BIOS Data
@@ -8,6 +8,7 @@ i386 Real Mode (16bit, A20Line is enabled)
 0x007C00 ~ 0x007DFF : Boot Sector
 0x007E00 ~ 0x00FFFF : UnUsed            ;
 
+(need segment register)
 0x010000 ~ 0x09FBFF : UnUsed            ;
 0x09FC00 ~ 0x09FFFF : ACPI Work Area
 0x0A0000 ~ 0x0BFFFF : VRAM
