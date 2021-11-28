@@ -1,9 +1,8 @@
 ; boot.asm
 ; Please write this file for Floppy Image Boot Sector.
 
-CYLS		EQU	10
+CYLS		EQU	10				; Maximum 39 sect.
 INIV		EQU	1
-WAITN		EQU	1
 
 %include	"filelist.inc"
 
@@ -77,38 +76,6 @@ NoInitVideo:
 	REP 	STOSB							; Write Memory
 
 	XOR		BL, BL
-
-;_/_/_/_/	KeyCheck
-KeyCheckLoop:
-;_/_/_/_/	Wait
-
-	MOV		AH, 0x86
-	MOV		CX, WAITN						; Wait CX:DX ms
-	XOR		DX, DX
-	INT		0x15
-
-	INC		BL
-	CMP		BL, 10
-	JE		KeyCheckLoopRet
-
-	MOV		AH, 0x01						; Check Key
-	INT		0x16							; ( If Buffer is NULL, return routine. )
-	JZ		KeyCheckLoop					; Check Key Buffer
-
-	XOR		AH, AH
-	INT		0x16
-
-	CMP		AL, 0x20						; If pushed F1 key
-	JE		KeySP
-
-	JMP		KeyCheckLoop
-
-KeySP:
-
-	MOV		SI, MSG_CRLF
-	CALL	print
-
-	INT		0x18
 
 KeyCheckLoopRet:
 
@@ -221,6 +188,7 @@ MemTest:
 
 .err:
 	MOV		AX, 0x01
+	SUB		BX, CX
 	POP		CX
 	RET
 
@@ -239,13 +207,13 @@ MSG_CRLF:
 	DB		0x0D, 0x0A, 0x00
 	
 MSGERR:
-	DB		"E: Floppy has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x00
+	DB		"E: Floppy has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
 	
 MSG_NoInitVideo:
 	DB		"W: AS-DOS isn't initialized video.", 0x0D, 0x0A, 0x00
 
 MSG_MEMERR:
-	DB		"E: Memory has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x00
+	DB		"E: Memory has broken. Cannot boot AS-DOS.", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
 
 
 
