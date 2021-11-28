@@ -79,9 +79,9 @@ Compare:
 	PUSH	DX
 
 .Compare_Read:
-	MOV 	DH, [BX]
-	MOV 	DL, [SI]
-	INC 	BX
+	MOV 	DH, BYTE [BX]		; Load [BX] to DH, [SI] to DL
+	MOV 	DL, BYTE [SI]
+	INC 	BX					; Increment BX, SI
 	INC		SI
 	CMP 	DH, DL          ; If ( DH != DL )
 	JNE 	SHORT	.Compare_Not
@@ -164,13 +164,13 @@ Hex2Ascii:
 	
 	RET 
 	
-
-;SI = cmdname adrs and cmd
+; BX = Command Name Adress
+; SI = Command Struct Adress
 
 Command:
 	PUSH	DI
 
-	MOV		DI, SI
+	MOV		DI, SI	; Compare "Command Name" and "Command Struct -> Command Name"
 	CALL	Compare
 	OR		AX, AX
 	JZ		.yes
@@ -180,7 +180,7 @@ Command:
 	RET
 
 .yes:
-	ADD		DI, 12
+	ADD		DI, 12	; Call Adress "Command Struct -> Command Process"
 	CALL	DI
 
 	POP		DI
