@@ -22,10 +22,26 @@ Entry:
 	
 
 ;_/_/_/_/	Check Installed Memorys
-	INT		0x12
-	MOV		WORD [0x0502], AX
+
+	MOV		AX, 0xE801				; Get memory size ( 64KB )
+	INT		0x15
+	JC		CannotGetMemSize		; if "Carry Flag" is true, Skip store memory size process.
+
+	MOV		WORD [0x0502], DX		; Store DI for [0x0502]
+
+	MOV		BX, 0x0502				; Convert binary to ascii code.
+	MOV		SI, 0x0510
+	CALL	Hex2Ascii
+
+	MOV		SI, 0x0510
+	CALL	print
+
+CannotGetMemSize:
 	
 	XOR		AX, AX
+	MOV		BX, AX
+	MOV		CX, AX
+	MOV		DX, AX
 
 	
 	MOV		SI, MSG
