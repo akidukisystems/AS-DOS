@@ -12,7 +12,7 @@ DCMD_HELP_detail_NotMatch:
 
 DCMD_HELP_MSG1:
 	DB		"Active commands :", 0x0D, 0x0A
-	DB		" reset     romb     help     lfchk    exit     cls     ", 0x0D, 0x0A, 0x00
+	DB		" reset     romb     help     lfchk    exit     cls      mem     ", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail:
 
@@ -51,6 +51,12 @@ DCMD_HELP_detail:
     CALL    Compare
     OR      AX, AX
     JZ      DCMD_HELP_detail_CLS
+
+    MOV     BX, _CMD_PRM0
+    MOV     SI, DCMD_MEM
+    CALL    Compare
+    OR      AX, AX
+    JZ      DCMD_HELP_detail_MEM
 
     JMP     DCMD_HELP_detail_NotMatch
 
@@ -109,3 +115,12 @@ DCMD_HELP_detail_CLS:
 
 DCMD_HELP_detail_CLS_MSG:
     DB      "Clear screen.", 0x0D, 0x0A, " > cls", 0x0D, 0x0A, 0x00
+
+DCMD_HELP_detail_MEM:
+    MOV     SI, DCMD_HELP_detail_MEM_MSG
+    CALL    print
+    
+    JMP     DCMD_HELP_detail_NotMatch
+
+DCMD_HELP_detail_MEM_MSG:
+    DB      "Print installed memory size. (64KB)", 0x0D, 0x0A, " > mem", 0x0D, 0x0A, 0x00
