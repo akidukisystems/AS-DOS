@@ -27,19 +27,6 @@ Entry:
 	MOV		DI, AX
 	MOV		SI, AX
 
-;_/_/_/_/   MemTest
-	MOV 	DI, 0x0500
-	MOV 	BX, 0x7BFF					; Memtest 0x7E00 to 0x7FFF
-	CALL	MemTest
-	OR		AX, AX
-	JNZ		MemErr
-
-	MOV 	DI, 0x7E00
-	MOV 	BX, 0xFFFF					; Memtest 0x7E00 to 0x7FFF
-	CALL	MemTest
-	OR		AX, AX
-	JNZ		MemErr
-
 
 
 
@@ -63,17 +50,20 @@ InitVideo:
 	
 NoInitVideo:
 
-
-
 ;_/_/_/_/   Print BootMessage
 	MOV 	SI, MSG
 	CALL 	print
 
-;_/_/_/_/   Init Memory at 0x7E00 to 0x7FFF
+;_/_/_/_/   Init Memory at 0x0500 to 0x7BFF
 	XOR 	AX, AX
 	MOV 	DI, 0x0500
 	MOV 	CX, 0x7BFF-0x0500
 	REP 	STOSB							; Write Memory
+
+;_/_/_/_/	Init Memory at 0x7E00 to 0xFFFF
+	MOV		DI, 0x7E00
+	MOV		CX, 0x7E00-0xFFFF
+	REP		STOSB
 
 	XOR		BL, BL
 
@@ -121,7 +111,7 @@ FloppyReadNext:
 	
 	
 	
-	MOV		[0x0500], CH
+	MOV		BYTE [0x0500], CH
 	JMP		FILE_INDEX + FILE_ASDOS				; 0x8000 + 0x4200 = 0xC200		Jump to ASDOS.SYS
 	
 FloppyReadError:
@@ -162,34 +152,6 @@ print:
 
 .print_ret:
 	POP		AX
-	RET
-
-;DI = start
-;BX = end
-MemTest:
-	PUSH	CX
-
-	MOV 	SI, DI
-	MOV		CX, BX
-	SUB		CX, DI
-	
-.loop:
-	MOV 	AL, 0xFF
-	STOSB										; Write Memory
-	LODSB										; Load Memory
-	CMP 	AL, 0xFF
-	JNE		.err
-	DEC 	CX
-	JNP 	SHORT	.loop
-
-	XOR		AX, AX
-	POP		CX
-	RET
-
-.err:
-	MOV		AX, 0x01
-	SUB		BX, CX
-	POP		CX
 	RET
 
 
