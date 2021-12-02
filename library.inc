@@ -16,6 +16,15 @@
 ;
 ;================================================================
 ;
+;	Oprint
+;		Desc	: Print text with AL register.
+;		Input	:
+;					BL	= Print ASCII code.
+;		Output	:
+;					None
+;
+;================================================================
+;
 ;	Compare
 ;		Desc	: Compare string with memory.
 ;		Input	:
@@ -61,6 +70,17 @@ print:
 
 .print_ret:
 	POP 	AX
+	RET
+
+Oprint:
+	PUSH	AX
+	MOV		AL, BL
+	MOV		AH, 0x0E
+	PUSH	BX
+	XOR		BX, BX
+	INT		0x10
+	POP		BX
+	POP		AX
 	RET
 
 
