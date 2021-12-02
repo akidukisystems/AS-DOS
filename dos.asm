@@ -160,6 +160,10 @@ KeySplitDone:
 	MOV		SI, DCMD_CLS
 	CALL	Command
 
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_MEM
+	CALL	Command
+
 ;	MOV 	BX, _CMD_NAME
 ;	MOV 	SI, CMD_RESET
 ;	CALL	Compare
@@ -328,7 +332,25 @@ DCMD_CLS:
 
 	JMP		Key_Ret
 
+DCMD_MEM:
+	DB		"mem"
+	TIMES	12-3	DB	0x00
 
+	MOV		SI, DCMD_MEM_MSG
+	CALL	print
+	MOV		BX, 0x0502
+	MOV		SI, 0x0510
+	CALL	Hex2Ascii
+	MOV		SI, 0x0510
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	JMP		Key_Ret
+
+DCMD_MEM_MSG:
+	DB		"Installed memory is ", 0x00
 
 %include	"library.inc"
 
