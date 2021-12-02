@@ -34,7 +34,7 @@
 ;					BX	= Input hex adress
 ;					SI	= Output ascii code adress
 ;		Output	:
-;					SI = Ascii code adress
+;					SI  = Ascii code adress
 ;
 ;================================================================
 
