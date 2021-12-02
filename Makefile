@@ -1,6 +1,25 @@
 # AS-DOS Makefile
 # Copyright (c) 2021 AkidukiSystems All Rights Reserved.
 
+# How to use?
+# 1. Make floppy image file and execute its file...
+#    Run command ' $ make '
+# 2. Make floppy image file and debug binary system file...
+#    Run command ' $ make nrm '
+# 3. Make floppy image file... ( Not execute )
+#    Run command ' $ make release '
+#    If you copied its file, please run this command. ( Cleaning binary system file )
+#    Command:    ' $ make clean '
+#
+# What does this word mean?
+# - Binary system file...
+#   Files required to run the system. ( BOOT.BIN, ASDOS.SYS, DOS.SYS 
+#   This files will be copied in the floppy image file. )
+#   ( BOOT.BIN will be stored in the boot sector. )
+# - Floppy image file...
+#   This is the file that qemu will execute directly. ( FLOPPY.IMG )
+
+
 FLIMG		= floppy.img
 BOOTSECT	= boot.bin
 SYSTEM		= asdos.sys
@@ -26,9 +45,7 @@ nrm: Makefile
 
 release: Makefile
 	make -r $(FLIMG)
-	mv -f $(FLIMG) ../$(FLIMG)
-	make -r clean
-	
+
 
 
 $(BOOTSECT): $(aBOOTSECT) $(iFLIST) Makefile
@@ -44,6 +61,7 @@ $(FLIMG): $(BOOTSECT) $(SYSTEM) $(DOS) Makefile
 	make -r $(BOOTSECT)
 	make -r $(DOS)
 	mformat -f 1440 -C -v AS-DOS -I 12 -B $(BOOTSECT) -i $(FLIMG) ::
+#   Coping system files
 	mcopy -i $(FLIMG) $(SYSTEM) ::
 	mcopy -i $(FLIMG) $(DOS) ::
 
