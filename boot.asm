@@ -67,9 +67,6 @@ NoInitVideo:
 
 	XOR		BL, BL
 
-KeyCheckLoopRet:
-
-
 ;_/_/_/_/	Read Floppy disk
 	MOV 	AX, 0x0820						; Read on memory at 0x8200
 	MOV 	ES, AX
