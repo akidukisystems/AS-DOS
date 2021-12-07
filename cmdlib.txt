@@ -1,0 +1,24 @@
+DOSプロンプトから実行可能なコマンドの仕様一覧
+
+１．　CMD構造体
+
+    CMD構造体は、DOSプロンプトから実行可能なコマンドに要求される構造体です。
+    具体的な構造は以下のとおりです。
+
+    Segment:Offset
+    0000:0000 〜 0000:000C -> Command Name ( 12 Bytes, and Null Character )
+    0000:000D 〜 ...       -> Command Process ( Any Bytes )
+
+    Command Name...
+        Command Nameは、DOSプロンプトから実行する際に使用するコマンド名です。
+        このコマンド名は重複してはいけませんし、必ず12バイト以内に収めなければなりません。
+        Command Nameが12バイトに満たなかった場合、残りのバイト数（たとえば、Command Nameで6バイト
+        使用した場合、12-6 で残りの6バイト）はヌル文字（0x00）で埋められます。
+        Command Nameの直後1バイトは必ずヌル文字（0x00）が入ります。
+
+    Command Process...
+        Command Processは、DOSプロンプトから入力されたコマンド名と自身の構造体に含まれる
+        Command Nameのデータが一致した場合に実行されます。
+        Command Processは、一般的に JMP 命令を使用して実行されます。
+        CALL 命令ではないので、必ず最後に RET 命令ではなく JMP 命令でリターンしなければなりません。
+        基本的には DOS.ASM のラベル ReturnAdrs にリターンする必要があります。
