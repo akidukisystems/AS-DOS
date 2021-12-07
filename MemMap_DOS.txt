@@ -6,6 +6,10 @@ MemMap
 	0x0502 ~ 2Bytes ( 0x0503 )		: Installed Memory ( Binary, 64KB )
 	0x0508 ~ 5Bytes ( 0x050D )		: Loaded floppy disk sector ( ASCII, HEX ) *
 	0x0510 ~ 5Bytes ( 0x0514 )		: Installed Memory ( ASCII, HEX, Bytes )
+	0x0520 ~ 3Bytes ( 0x0522 )		: Video Infomation
+		0x0520 : Video Mode
+		0x0521 : Unknown
+		0x0522 : Video Page Index
 
 0x0540 ~ 447Bytes ( 0x07FF )	: DOSPrompt
 	0x0542 ~ 1Byte					: Writed String Counter
