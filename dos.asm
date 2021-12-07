@@ -12,6 +12,11 @@ _CMD_PRM4	EQU	0x07A0
 _CMD_PRM5	EQU	0x07C0
 _CMD_PRM6	EQU	0x07E0
 
+DM_CommandAdress			EQU	0x0600
+DM_DOS_SYS_Memory_Start		EQU 0x0540
+DM_DOS_SYS_Memory_End		EQU 0x07FF
+DM_DOS_SYS_Memory_Spaces	EQU	DM_DOS_SYS_Memory_End - DM_DOS_SYS_Memory_Start
+
 [BITS 16]
 	ORG		FILE_INDEX + FILE_DOS
 
@@ -29,6 +34,10 @@ Entry:
 	MOV		DI, AX
 	MOV		SI, AX
 
+	MOV		CX, 0x0007
+	MOV		DX, 0xA120
+	CALL	Waitf
+
 
 ;_/_/_/_/   Print BootMessage
 	MOV		SI, MSG_BOOT
@@ -40,11 +49,11 @@ Entry:
 
 ;_/_/_/_/   Reset using memory
 	XOR		AX, AX
-	MOV		DI, 0x0540
-	MOV		CX, 0x07FF-0x0540
+	MOV		DI, DM_DOS_SYS_Memory_Start
+	MOV		CX, DM_DOS_SYS_Memory_Spaces
 	REP		STOSB
 
-	MOV		DI, 0x0600
+	MOV		DI, DM_CommandAdress
 
 	XOR		CX, CX
 
@@ -85,7 +94,7 @@ KeyPut:
 
 ;_/_/_/_/_/_/_/_/ Command Split
 
-	MOV		SI, 0x0600
+	MOV		SI, DM_CommandAdress
 	MOV		DI, 0x0700
 	XOR		AX, AX
 
@@ -133,8 +142,8 @@ KeySplitDone:
 	MOV 	BX, _CMD_NAME
 	MOV 	SI, MSG_NULL
 	CALL	Compare
-	OR		AX, AX
-	JZ		Key_Ret
+	OR		AL, AL
+	JZ		ReturnAdrs
 
 	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_RESET
@@ -164,47 +173,15 @@ KeySplitDone:
 	MOV		SI, DCMD_MEM
 	CALL	Command
 
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_RESET
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_RESET
-;
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_HELP
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_HELP
-;
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_ROMB
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_ROMB
-;
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_LFCHK
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_LFCHK
-;
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_EXIT
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_EXIT
-;
-;	MOV 	BX, _CMD_NAME
-;	MOV 	SI, CMD_CLS
-;	CALL	Compare
-;	OR		AX, AX
-;	JZ		DCMD_CLS
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_INFO
+	CALL	Command
 
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
 
 ;_/_/_/_/ Command Return Point!
-Key_Ret:
+ReturnAdrs:
 
 	POPA
 
@@ -213,38 +190,38 @@ Key_Ret:
 
 	;Clear commands
 	XOR 	AX, AX
-	MOV 	DI, 0x0540
-	MOV 	CX, 0x07FF-0x0540
+	MOV 	DI, DM_DOS_SYS_Memory_Start
+	MOV 	CX, DM_DOS_SYS_Memory_Spaces
 	REP 	STOSB
 
-	MOV 	DI, 0x0600
+	MOV 	DI, DM_CommandAdress
 
 	JMP 	DOS
 
 Key_CMDNTFUND:
 ;_/_/_/_/	Put command text
-	MOV 	SI, 0x0600
+	MOV 	SI, DM_CommandAdress
 	CALL	print
 
 	MOV 	SI, MSG_CMDNTFUND
 	CALL	print
-	JMP 	SHORT	Key_Ret
+	JMP 	SHORT	ReturnAdrs
 
 
 
 KeyDel:
-	CMP		DI, 0x0600						; Check text cursor ( guard buffer over run )
+	CMP		DI, DM_CommandAdress						; Check text cursor ( guard buffer over run )
 	JNE 	SHORT	KeyDel_
 	JMP 	DOS
 
 KeyDel_:
 	;_/_/_/_/ Screen
-	MOV 	SI, MSG_BS						; Delete screen text
-	CALL	print							; ACBDEF_	( start
-	MOV 	SI, MSG_SP						; ABCDEE    ( back cursor
-	CALL	print							; ABCDE _	( write space code
-	MOV 	SI, MSG_BS						; ABCDE_	( back cursor
-	CALL	print
+	MOV 	BL, 0x08						; Delete screen text
+	CALL	Oprint							; ACBDEF_	( start
+	MOV 	BL, 0x20						; ABCDEE    ( back cursor
+	CALL	Oprint							; ABCDE _	( write space code
+	MOV 	BL, 0x08						; ABCDE_	( back cursor
+	CALL	Oprint
 
 	XOR 	AL, AL							; Delete Memory Text
 	DEC 	DI
@@ -270,13 +247,7 @@ DCMD_RESET:
 	TIMES	12-5	DB	0x00
 
 	INT 	0x19
-	RET
 
-DCMD_HANG:
-	DB		"hang"
-	TIMES	12-4	DB	0x00
-
-	JMP 	SHORT	Hang
 
 DCMD_HELP:
 	DB		"help"
@@ -290,13 +261,12 @@ DCMD_ROMB:
 	TIMES	12-4	DB	0x00
 
 	INT 	0x18
-	JMP 	Hang
 
 DCMD_LFCHK:
 	DB		"lfchk"
 	TIMES	12-5	DB	0x00
 
-	MOV		SI, DCMD_LFCHK_MSG
+	MOV		SI, .MSG
 	CALL	print
 	MOV		BX, 0x0500
 	MOV		SI, 0x0508
@@ -307,9 +277,9 @@ DCMD_LFCHK:
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
-	JMP		Key_Ret
+	JMP		ReturnAdrs
 
-DCMD_LFCHK_MSG:
+.MSG:
 	DB		"Loaded sector = 0x", 0x00
 
 DCMD_EXIT:
@@ -317,7 +287,6 @@ DCMD_EXIT:
 	TIMES	12-4	DB	0x00
 
 	INT 	0x18
-	JMP 	Hang
 
 DCMD_CLS:
 	DB		"cls"
@@ -330,13 +299,13 @@ DCMD_CLS:
 	MOV		SI, MSG_BOOTED
 	CALL	print
 
-	JMP		Key_Ret
+	JMP		ReturnAdrs
 
 DCMD_MEM:
 	DB		"mem"
 	TIMES	12-3	DB	0x00
 
-	MOV		SI, DCMD_MEM_MSG
+	MOV		SI, .MSG
 	CALL	print
 	MOV		BX, 0x0502
 	MOV		SI, 0x0510
@@ -347,10 +316,68 @@ DCMD_MEM:
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
-	JMP		Key_Ret
+	JMP		ReturnAdrs
 
-DCMD_MEM_MSG:
-	DB		"Installed memory is ", 0x00
+.MSG:
+	DB		"Installed memory = 0x", 0x00
+
+DCMD_INFO:
+	DB		"info"
+	TIMES	12-4	DB	0x00
+
+	MOV		BX, _CMD_PRM0
+	MOV		SI, .MSG_LFCHK
+	CALL	Compare
+	OR		AL, AL
+	JZ		.LFCHK
+
+	MOV		BX, _CMD_PRM0
+	MOV		SI, .MSG_MEM
+	CALL	Compare
+	OR		AL, AL
+	JZ		.MEM
+
+	JMP		ReturnAdrs
+
+.LFCHK:
+	MOV		SI, .LFCHK_MSG
+	CALL	print
+	MOV		BX, 0x0500
+	MOV		SI, 0x0508
+	CALL	Hex2Ascii
+	MOV		SI, 0x0508
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	JMP		ReturnAdrs
+
+.LFCHK_MSG:
+	DB		"Loaded sector = 0x", 0x00
+
+.MEM:
+	MOV		SI, .MEM_MSG
+	CALL	print
+	MOV		BX, 0x0502
+	MOV		SI, 0x0510
+	CALL	Hex2Ascii
+	MOV		SI, 0x0510
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+	JMP		ReturnAdrs
+
+.MEM_MSG:
+	DB		"Installed memory = 0x", 0x00
+
+.MSG_LFCHK:
+	DB		"lfchk", 0x00
+
+.MSG_MEM:
+	DB		"mem", 0x00
 
 %include	"library.inc"
 
@@ -365,12 +392,6 @@ MSG_NULL:
 
 MSG_CRLF:
 	DB		0x0D, 0x0A, 0x00
-
-MSG_BS:
-	DB		0x08, 0x00
-
-MSG_SP:
-	DB		" ", 0x00
 
 MSG_DOSPRMPT:
 	DB		"System @ ", 0x00
