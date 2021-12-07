@@ -2,7 +2,6 @@
 ; Please write this file for Floppy Image Boot Sector.
 
 CYLS		EQU	10				; Maximum 39 sect.
-INIV		EQU	1
 
 %include	"filelist.inc"
 
@@ -29,26 +28,12 @@ Entry:
 
 
 
-
-
 ;_/_/_/_/   Init Video
-	MOV		AX, INIV
-	OR		AX, AX
-	JNZ		SHORT	InitVideo
-	
-	MOV		SI, MSG_NoInitVideo
-	CALL	print
-	
-	JMP		SHORT	NoInitVideo
-	
-InitVideo:
 	XOR 	AH, AH
-	MOV 	AL, 0x02
+	MOV 	AL, 0x03
 	INT 	0x10
 
 	XOR		AX, AX
-	
-NoInitVideo:
 
 ;_/_/_/_/   Print BootMessage
 	MOV 	SI, MSG
