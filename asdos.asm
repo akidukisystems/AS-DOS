@@ -37,6 +37,13 @@ Entry:
 	CALL	print
 
 CannotGetMemSize:
+
+	MOV		AH, 0x0F			; Get video parameter
+	INT		0x10
+
+	MOV		WORD [0x0520], AX
+	MOV		BYTE [0x0522], BH
+
 	
 	XOR		AX, AX
 	MOV		BX, AX
@@ -46,7 +53,7 @@ CannotGetMemSize:
 	
 	MOV		SI, MSG
 	CALL	print
-	
+
 	JMP		FILE_INDEX + FILE_DOS
 
 Hang:
