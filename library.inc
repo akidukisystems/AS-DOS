@@ -31,7 +31,7 @@
 ;					BX	= Compare String Adress
 ;					SI	= Compare String Adress
 ;		Output	:
-;					AX	= Result
+;					AL	= Result
 ;						0x00 : Match
 ;						0x01 : Not Match
 ;
@@ -59,7 +59,10 @@
 
 print:
 	PUSH	AX
+	PUSH	BX
 	MOV 	AH, 0x0E
+	XOR		BX, BX
+	MOV		BL, 0x06
 
 .print_loop:
 	LODSB
@@ -70,6 +73,7 @@ print:
 
 .print_ret:
 	POP 	AX
+	POP		BX
 	RET
 
 Oprint:
@@ -93,7 +97,7 @@ Oprint:
 ;DX = Not Using
 ;SI = Compare Adrs
 ;_/_/ Output
-;AX = Result ( 0x00 = Match, 0x01 = Not Match )
+;AL = Result ( 0x00 = Match, 0x01 = Not Match )
 
 Compare:
 	PUSH	DX
@@ -110,12 +114,12 @@ Compare:
 	JMP 	SHORT	.Compare_Read
 
 .Compare_Not:
-	MOV 	AX, 0x01
+	MOV 	AL, 0x01
 	POP 	DX
 	RET
 
 .Compare_Fin:
-	XOR		AX, AX
+	XOR		AL, AL
 	POP 	DX
 	RET
 	
@@ -186,13 +190,16 @@ Hex2Ascii:
 	
 ; BX = Command Name Adress
 ; SI = Command Struct Adress
+; AL = Execute Command Flag ( 0x00 = not execute : 0x01 = excute )
+;return
+; AL = Status ( 0x00 = good : 0x01 = fail )
 
 Command:
 	PUSH	DI
 
 	MOV		DI, SI	; Compare "Command Name" and "Command Struct -> Command Name"
 	CALL	Compare
-	OR		AX, AX
+	OR		AL, AL
 	JZ		.yes
 
 	POP		DI
@@ -201,8 +208,19 @@ Command:
 
 .yes:
 	ADD		DI, 12	; Call Adress "Command Struct -> Command Process"
-	CALL	DI
+	JMP		FAR		DI
 
 	POP		DI
 
+	RET
+
+
+Waitf:
+
+	PUSH	AX
+
+	MOV		AH, 0x86
+	INT		0x15
+
+	POP		AX
 	RET
