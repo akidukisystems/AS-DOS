@@ -37,7 +37,7 @@
 ;
 ;================================================================
 ;
-;	Hex2Ascii
+;	Hex2AsciiMW
 ;		Desc	: Convert hex to ascii code.
 ;		Input	:
 ;					BX	= Input hex adress
@@ -72,8 +72,8 @@ print:
 	JMP 	SHORT	.print_loop
 
 .print_ret:
-	POP 	AX
-	POP		BX
+	POP 	BX
+	POP		AX
 	RET
 
 Oprint:
@@ -125,14 +125,14 @@ Compare:
 	
 
 
-;**************** Func: Hex2Ascii
+;**************** Func: Hex2AsciiMW
 ;_/_/ Input
 ;BX = Input Hex Adress
 ;SI = Output Ascii Adress
 ;_/_/ Output
 ;[SI] = Output Ascii code
 
-Hex2Ascii:
+Hex2AsciiMW:
 	PUSH	AX
 	PUSH	CX
 	PUSH	DX
@@ -182,11 +182,74 @@ Hex2Ascii:
 	JMP		SHORT	.alpDLret
 	
 .fin:
-	POP		AX
-	POP		CX
 	POP		DX
+	POP		CX
+	POP		AX
 	
 	RET 
+
+
+
+
+;**************** Func: Hex2AsciiMW
+;_/_/ Input
+;BX = Input Hex Adress
+;SI = Output Ascii Adress
+;_/_/ Output
+;[SI] = Output Ascii code
+
+Hex2AsciiMB:
+	PUSH	AX
+	PUSH	CX
+	PUSH	DX
+						; Set NULL code
+	ADD		SI, 0x02	; SI + 2
+	XOR		AX, AX		
+	MOV		[SI], AX	; Memory [SI] = 0
+	DEC		SI
+	
+.loop:
+						; Load Higher 8bit Adress BX
+	MOV		AL, [BX]	; AL = Adress BX
+	AND		AL, 0xF0	; Mask Higher 8bit
+	SHR		AL, 4		; Bit shift  L -> R (4bits)
+
+						; Load Lower 8bit Adress BX
+	MOV		DL, [BX]	; DL = Adress BX
+	AND		DL, 0x0F	; Mask Lower 8bit
+
+	ADD		AL, 0x30	; AL += 0x30 ( binary value 0x01 -> ASCII value 0x31 '1' )
+	CMP		AL, 0x3A	; 0x09 + 0x30 = 0x39 '9', 0x0A + 0x30 = 0x3A. 0x3A is not 'A'. 'A' is 0x41.
+	JAE		SHORT	.alpAL	; if ( CX >= 0x3A )
+.alpALret:
+	ADD		DL, 0x30	; next process. ( register DL )
+	CMP		DL, 0x3A
+	JAE		SHORT	.alpDL	; if ( CX >= 0x3A )
+.alpDLret:
+						; Write result for memory.
+	MOV		[SI], DL
+	DEC		SI
+	MOV		[SI], AL
+	DEC		SI
+	
+	JMP		SHORT	.fin
+	
+.alpAL:
+	ADD		AL, 0x07			; The difference between '9' and 'A' is 0x07.
+	JMP		SHORT	.alpALret
+	
+.alpDL:
+	ADD		DL, 0x07			; The difference between '9' and 'A' is 0x07.
+	JMP		SHORT	.alpDLret
+	
+.fin:
+	POP		DX
+	POP		CX
+	POP		AX
+	
+	RET 
+
+
 	
 ; BX = Command Name Adress
 ; SI = Command Struct Adress
@@ -214,6 +277,10 @@ Command:
 
 	RET
 
+; wait
+; CX = waiting time ( micro sec, upper 16 bits )
+; DX = waiting time ( micro sec, lower 16 bits )
+; 
 
 Waitf:
 
