@@ -31,7 +31,7 @@ Entry:
 
 	MOV		BX, 0x0502				; Convert binary to ascii code.
 	MOV		SI, 0x0510
-	CALL	Hex2Ascii
+	CALL	Hex2AsciiMW
 
 	MOV		SI, 0x0510
 	CALL	print
