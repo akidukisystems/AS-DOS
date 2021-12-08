@@ -177,6 +177,10 @@ KeySplitDone:
 	MOV		SI, DCMD_INFO
 	CALL	Command
 
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_TIME
+	CALL	Command
+
 	OR		AX, AX
 	JNZ		SHORT	Key_CMDNTFUND
 
@@ -270,7 +274,7 @@ DCMD_LFCHK:
 	CALL	print
 	MOV		BX, 0x0500
 	MOV		SI, 0x0508
-	CALL	Hex2Ascii
+	CALL	Hex2AsciiMW
 	MOV		SI, 0x0508
 	CALL	print
 	MOV		SI, MSG_CRLF
@@ -309,7 +313,7 @@ DCMD_MEM:
 	CALL	print
 	MOV		BX, 0x0502
 	MOV		SI, 0x0510
-	CALL	Hex2Ascii
+	CALL	Hex2AsciiMW
 	MOV		SI, 0x0510
 	CALL	print
 	MOV		SI, MSG_CRLF
@@ -344,7 +348,7 @@ DCMD_INFO:
 	CALL	print
 	MOV		BX, 0x0500
 	MOV		SI, 0x0508
-	CALL	Hex2Ascii
+	CALL	Hex2AsciiMW
 	MOV		SI, 0x0508
 	CALL	print
 	MOV		SI, MSG_CRLF
@@ -361,7 +365,7 @@ DCMD_INFO:
 	CALL	print
 	MOV		BX, 0x0502
 	MOV		SI, 0x0510
-	CALL	Hex2Ascii
+	CALL	Hex2AsciiMW
 	MOV		SI, 0x0510
 	CALL	print
 	MOV		SI, MSG_CRLF
@@ -378,6 +382,61 @@ DCMD_INFO:
 
 .MSG_MEM:
 	DB		"mem", 0x00
+
+DCMD_TIME:
+	DB		"time"
+	TIMES	12-4	DB	0x00
+
+	MOV		AH, 0x02
+	INT		0x1A
+	
+	; CL, CH, DL, DH ( min, hour, summertime, sec )
+	MOV		WORD [0x7E00], CX
+	MOV		WORD [0x7E02], DX
+
+	MOV		BX, 0x7E00
+	MOV		SI, 0x7E10
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x7E01
+	MOV		SI, 0x7E13
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x7E02
+	MOV		SI, 0x7E16
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x7E03
+	MOV		SI, 0x7E19
+	CALL	Hex2AsciiMB
+
+	MOV		SI, 0x7E13
+	CALL	print
+	MOV		BL, ":"
+	CALL	Oprint
+
+	MOV		SI, 0x7E10
+	CALL	print
+	MOV		BL, ":"
+	CALL	Oprint
+
+	MOV		SI, 0x7E19
+	CALL	print
+
+	MOV		SI, MSG_CRLF
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+
+	MOV		DI, 0x7E00
+	MOV		CX, 0x20
+	XOR		AL, AL
+	REP		STOSB
+
+	JMP		ReturnAdrs
+
+
+
 
 %include	"library.inc"
 
