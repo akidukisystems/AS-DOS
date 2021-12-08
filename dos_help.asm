@@ -13,7 +13,7 @@ DCMD_HELP_detail_NotMatch:
 DCMD_HELP_MSG1:
 	DB		"Active commands :", 0x0D, 0x0A
     DB      " reset    romb     help     lfchk    exit    ", 0x0D, 0x0A
-    DB      " cls      mem      info", 0x0D, 0x0A, 0x00
+    DB      " cls      mem      info     time", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail:
 
@@ -65,81 +65,96 @@ DCMD_HELP_detail:
     OR      AL, AL
     JZ      DCMD_HELP_detail_INFO
 
+    MOV     BX, _CMD_PRM0
+    MOV     SI, DCMD_TIME
+    CALL    Compare
+    OR      AL, AL
+    JZ      DCMD_HELP_detail_TIME
+
     JMP     DCMD_HELP_detail_NotMatch
 
 
 
 DCMD_HELP_detail_RESET:
-    MOV     SI, DCMD_HELP_detail_RESET_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_RESET_MSG:
+.MSG:
     DB      "Reset and boot AS-DOS.", 0x0D, 0x0A, " > reset", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_HELP:
-    MOV     SI, DCMD_HELP_detail_HELP_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_HELP_MSG:
+.MSG:
     DB      "Type command help.", 0x0D, 0x0A, " > help <command name>", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_ROMB:
-    MOV     SI, DCMD_HELP_detail_ROMB_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_ROMB_MSG:
+.MSG:
     DB      "Change ROM-BASIC mode.", 0x0D, 0x0A, " > romb", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_LFCHK:
-    MOV     SI, DCMD_HELP_detail_LFCHK_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_LFCHK_MSG:
+.MSG:
     DB      "Print loaded floppy disk sector.", 0x0D, 0x0A, " > lfchk", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_EXIT:
-    MOV     SI, DCMD_HELP_detail_EXIT_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_EXIT_MSG:
+.MSG:
     DB      "Exit AS-DOS.", 0x0D, 0x0A, " > exit", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_CLS:
-    MOV     SI, DCMD_HELP_detail_CLS_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_CLS_MSG:
+.MSG:
     DB      "Clear screen.", 0x0D, 0x0A, " > cls", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_MEM:
-    MOV     SI, DCMD_HELP_detail_MEM_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_MEM_MSG:
+.MSG:
     DB      "Print installed memory size. (64KB)", 0x0D, 0x0A, " > mem", 0x0D, 0x0A, 0x00
 
 DCMD_HELP_detail_INFO:
-    MOV     SI, DCMD_HELP_detail_INFO_MSG
+    MOV     SI, .MSG
     CALL    print
     
     JMP     DCMD_HELP_detail_NotMatch
 
-DCMD_HELP_detail_INFO_MSG:
+.MSG:
     DB      "Print infomation data.", 0x0D, 0x0A, " > info <type>", 0x0D, 0x0A
     DB      " <type> parameter...", 0x0D, 0x0A
     DB      "        lfchk = Print loaded floppy disk sector.", 0x0D, 0x0A
     DB      "        mem   = Print installed memory size.", 0x0D, 0x0A, 0x00
+
+DCMD_HELP_detail_TIME:
+    MOV     SI, .MSG
+    CALL    print
+    
+    JMP     DCMD_HELP_detail_NotMatch
+
+.MSG:
+    DB      "Print now time.", 0x0D, 0x0A, 0x00
