@@ -12,10 +12,9 @@ _CMD_PRM4	EQU	0x07A0
 _CMD_PRM5	EQU	0x07C0
 _CMD_PRM6	EQU	0x07E0
 
-DM_CommandAdress			EQU	0x0600
-DM_DOS_SYS_Memory_Start		EQU 0x0540
-DM_DOS_SYS_Memory_End		EQU 0x07FF
-DM_DOS_SYS_Memory_Spaces	EQU	DM_DOS_SYS_Memory_End - DM_DOS_SYS_Memory_Start
+
+%include		"memlist.inc"
+
 
 [BITS 16]
 	ORG		FILE_INDEX + FILE_DOS
@@ -49,11 +48,11 @@ Entry:
 
 ;_/_/_/_/   Reset using memory
 	XOR		AX, AX
-	MOV		DI, DM_DOS_SYS_Memory_Start
-	MOV		CX, DM_DOS_SYS_Memory_Spaces
+	MOV		DI, DM_DOS_SYS_DOSPrompt_Memory_Start
+	MOV		CX, DM_DOS_SYS_DOSPrompt_Memory_Spaces
 	REP		STOSB
 
-	MOV		DI, DM_CommandAdress
+	MOV		DI, DM_DOS_SYS_CommandAdress
 
 	XOR		CX, CX
 
@@ -94,8 +93,8 @@ KeyPut:
 
 ;_/_/_/_/_/_/_/_/ Command Split
 
-	MOV		SI, DM_CommandAdress
-	MOV		DI, 0x0700
+	MOV		SI, DM_DOS_SYS_CommandAdress
+	MOV		DI, DM_DOS_SYS_SplitedCommand
 	XOR		AX, AX
 
 KeySplit:
@@ -115,10 +114,6 @@ KeySplit:
 	STOSB
 
 	INC		BYTE [0x0542]
-
-;	MOV		BL, BYTE [0x0542]	; writed letter count
-;	INC		BL
-;	MOV		BYTE [0x0542], BL
 
 	JMP		KeySplit
 
@@ -158,10 +153,6 @@ KeySplitDone:
 	CALL	Command
 
 	MOV		BX, _CMD_NAME
-	MOV		SI, DCMD_LFCHK
-	CALL	Command
-
-	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_EXIT
 	CALL	Command
 
@@ -170,15 +161,15 @@ KeySplitDone:
 	CALL	Command
 
 	MOV		BX, _CMD_NAME
-	MOV		SI, DCMD_MEM
-	CALL	Command
-
-	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_INFO
 	CALL	Command
 
 	MOV		BX, _CMD_NAME
 	MOV		SI, DCMD_TIME
+	CALL	Command
+
+	MOV		BX, _CMD_NAME
+	MOV		SI, DCMD_DATE
 	CALL	Command
 
 	OR		AX, AX
@@ -194,17 +185,17 @@ ReturnAdrs:
 
 	;Clear commands
 	XOR 	AX, AX
-	MOV 	DI, DM_DOS_SYS_Memory_Start
-	MOV 	CX, DM_DOS_SYS_Memory_Spaces
+	MOV 	DI, DM_DOS_SYS_DOSPrompt_Memory_Start
+	MOV 	CX, DM_DOS_SYS_DOSPrompt_Memory_Spaces
 	REP 	STOSB
 
-	MOV 	DI, DM_CommandAdress
+	MOV 	DI, DM_DOS_SYS_CommandAdress
 
 	JMP 	DOS
 
 Key_CMDNTFUND:
 ;_/_/_/_/	Put command text
-	MOV 	SI, DM_CommandAdress
+	MOV 	SI, DM_DOS_SYS_CommandAdress
 	CALL	print
 
 	MOV 	SI, MSG_CMDNTFUND
@@ -214,7 +205,7 @@ Key_CMDNTFUND:
 
 
 KeyDel:
-	CMP		DI, DM_CommandAdress						; Check text cursor ( guard buffer over run )
+	CMP		DI, DM_DOS_SYS_CommandAdress						; Check text cursor ( guard buffer over run )
 	JNE 	SHORT	KeyDel_
 	JMP 	DOS
 
@@ -247,55 +238,97 @@ Hang:
 
 ;**************** Command Process
 DCMD_RESET:
+._name:
 	DB		"reset"
-	TIMES	12-5	DB	0x00
+	TIMES	12- ($-DCMD_RESET)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Reset and boot AS-DOS.", 0x0D, 0x0A, " > reset", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+._main:
 	INT 	0x19
 
 
 DCMD_HELP:
+._name:
 	DB		"help"
-	TIMES	12-4	DB	0x00
+	TIMES	12- ($-DCMD_HELP)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Print help infomation.", 0x0D, 0x0A, " > help <command name>", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+
+._main:
 %include	"dos_help.asm"
 
 
 DCMD_ROMB:
+._name:
 	DB		"romb"
-	TIMES	12-4	DB	0x00
+	TIMES	12- ($-DCMD_ROMB)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Change ROM-BASIC mode.", 0x0D, 0x0A, " > romb", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+._main:
 	INT 	0x18
 
-DCMD_LFCHK:
-	DB		"lfchk"
-	TIMES	12-5	DB	0x00
-
-	MOV		SI, .MSG
-	CALL	print
-	MOV		BX, 0x0500
-	MOV		SI, 0x0508
-	CALL	Hex2AsciiMW
-	MOV		SI, 0x0508
-	CALL	print
-	MOV		SI, MSG_CRLF
-	CALL	print
-	MOV		SI, MSG_CRLF
-	CALL	print
-	JMP		ReturnAdrs
-
-.MSG:
-	DB		"Loaded sector = 0x", 0x00
-
 DCMD_EXIT:
+._name:
 	DB		"exit"
-	TIMES	12-4	DB	0x00
+	TIMES	12- ($-DCMD_EXIT)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Exit AS-DOS.", 0x0D, 0x0A, " > exit", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+._main:
 	INT 	0x18
 
 DCMD_CLS:
+._name:
 	DB		"cls"
-	TIMES	12-3	DB	0x00
+	TIMES	12- ($-DCMD_CLS)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Clear screen.", 0x0D, 0x0A, " > cls", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+
+	TIMES	0x200- ($-._help)	DB	0x00
+._main:
 	XOR 	AH, AH
 	MOV 	AL, 0x02
 	INT 	0x10
@@ -305,30 +338,26 @@ DCMD_CLS:
 
 	JMP		ReturnAdrs
 
-DCMD_MEM:
-	DB		"mem"
-	TIMES	12-3	DB	0x00
-
-	MOV		SI, .MSG
-	CALL	print
-	MOV		BX, 0x0502
-	MOV		SI, 0x0510
-	CALL	Hex2AsciiMW
-	MOV		SI, 0x0510
-	CALL	print
-	MOV		SI, MSG_CRLF
-	CALL	print
-	MOV		SI, MSG_CRLF
-	CALL	print
-	JMP		ReturnAdrs
-
-.MSG:
-	DB		"Installed memory = 0x", 0x00
-
 DCMD_INFO:
+._name:
 	DB		"info"
-	TIMES	12-4	DB	0x00
+	TIMES	12- ($-DCMD_INFO)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Print infomation data.", 0x0D, 0x0A, " > info <type>", 0x0D, 0x0A
+    DB      " <type> parameter...", 0x0D, 0x0A
+    DB      "        lfchk = Print loaded floppy disk sector.", 0x0D, 0x0A
+    DB      "        mem   = Print installed memory size.", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+
+._main:
 	MOV		BX, _CMD_PRM0
 	MOV		SI, .MSG_LFCHK
 	CALL	Compare
@@ -344,38 +373,50 @@ DCMD_INFO:
 	JMP		ReturnAdrs
 
 .LFCHK:
-	MOV		SI, .LFCHK_MSG
+	MOV		SI, .LFCHK_MSG1
 	CALL	print
 	MOV		BX, 0x0500
 	MOV		SI, 0x0508
 	CALL	Hex2AsciiMW
 	MOV		SI, 0x0508
 	CALL	print
+	MOV		SI, .LFCHK_MSG2
+	CALL	print
+
 	MOV		SI, MSG_CRLF
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
+
 	JMP		ReturnAdrs
 
-.LFCHK_MSG:
-	DB		"Loaded sector = 0x", 0x00
+.LFCHK_MSG1:
+	DB		"Loaded floppy disk size = 0x", 0x00
+.LFCHK_MSG2:
+	DB		" Sectors", 0x00
 
 .MEM:
-	MOV		SI, .MEM_MSG
+	MOV		SI, .MEM_MSG1
 	CALL	print
 	MOV		BX, 0x0502
 	MOV		SI, 0x0510
 	CALL	Hex2AsciiMW
 	MOV		SI, 0x0510
 	CALL	print
+	MOV		SI, .MEM_MSG2
+	CALL	print
+
 	MOV		SI, MSG_CRLF
 	CALL	print
 	MOV		SI, MSG_CRLF
 	CALL	print
+
 	JMP		ReturnAdrs
 
-.MEM_MSG:
+.MEM_MSG1:
 	DB		"Installed memory = 0x", 0x00
+.MEM_MSG2:
+	DB		" x 64KiB", 0x00
 
 .MSG_LFCHK:
 	DB		"lfchk", 0x00
@@ -384,43 +425,56 @@ DCMD_INFO:
 	DB		"mem", 0x00
 
 DCMD_TIME:
+._name:
 	DB		"time"
-	TIMES	12-4	DB	0x00
+	TIMES	12- ($-DCMD_TIME)	DB	0x00
 
+._help:
+	MOV     SI, ._help_MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+._help_MSG:
+    DB      "Print now time.", 0x0D, 0x0A, " > time", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+
+	TIMES	0x200- ($-._help)	DB	0x00
+._main:
 	MOV		AH, 0x02
 	INT		0x1A
 	
 	; CL, CH, DL, DH ( min, hour, summertime, sec )
-	MOV		WORD [0x7E00], CX
-	MOV		WORD [0x7E02], DX
+	MOV		WORD [0x0A00], CX
+	MOV		WORD [0x0A02], DX
 
-	MOV		BX, 0x7E00
-	MOV		SI, 0x7E10
+	MOV		BX, 0x0A00
+	MOV		SI, 0x0A10
 	CALL	Hex2AsciiMB
 
-	MOV		BX, 0x7E01
-	MOV		SI, 0x7E13
+	MOV		BX, 0x0A01
+	MOV		SI, 0x0A13
 	CALL	Hex2AsciiMB
 
-	MOV		BX, 0x7E02
-	MOV		SI, 0x7E16
+	MOV		BX, 0x0A02
+	MOV		SI, 0x0A16
 	CALL	Hex2AsciiMB
 
-	MOV		BX, 0x7E03
-	MOV		SI, 0x7E19
+	MOV		BX, 0x0A03
+	MOV		SI, 0x0A19
 	CALL	Hex2AsciiMB
 
-	MOV		SI, 0x7E13
+	MOV		SI, 0x0A13
 	CALL	print
 	MOV		BL, ":"
 	CALL	Oprint
 
-	MOV		SI, 0x7E10
+	MOV		SI, 0x0A10
 	CALL	print
 	MOV		BL, ":"
 	CALL	Oprint
 
-	MOV		SI, 0x7E19
+	MOV		SI, 0x0A19
 	CALL	print
 
 	MOV		SI, MSG_CRLF
@@ -428,7 +482,75 @@ DCMD_TIME:
 	MOV		SI, MSG_CRLF
 	CALL	print
 
-	MOV		DI, 0x7E00
+	MOV		DI, 0x0A00
+	MOV		CX, 0x20
+	XOR		AL, AL
+	REP		STOSB
+
+	JMP		ReturnAdrs
+
+DCMD_DATE:
+._name:
+	DB		"date"
+	TIMES	12- ($-DCMD_DATE)	DB	0x00
+
+._help:
+	MOV     SI, .MSG
+    CALL    print
+    
+    JMP     ReturnAdrs
+
+.MSG:
+    DB      "Print now date.", 0x0D, 0x0A, " > date", 0x0D, 0x0A, 0x0D, 0x0A, 0x00
+
+	TIMES	0x200- ($-._help)	DB	0x00
+
+._main:
+	MOV		AH, 0x04
+	INT		0x1A
+
+	; CL, CH, DL, DH ( LowerYear, UpperYear, Day, Month )
+	MOV		WORD [0x0A00], CX
+	MOV		WORD [0x0A02], DX
+
+
+	MOV		BX, 0x0A00
+	MOV		SI, 0x0A10
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x0A01
+	MOV		SI, 0x0A13
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x0A02
+	MOV		SI, 0x0A16
+	CALL	Hex2AsciiMB
+
+	MOV		BX, 0x0A03
+	MOV		SI, 0x0A19
+	CALL	Hex2AsciiMB
+
+	MOV		SI, 0x0A13
+	CALL	print
+	MOV		SI, 0x0A10
+	CALL	print
+	MOV		BL, "/"
+	CALL	Oprint
+
+	MOV		SI, 0x0A19
+	CALL	print
+	MOV		BL, "/"
+	CALL	Oprint
+
+	MOV		SI, 0x0A16
+	CALL	print
+
+	MOV		SI, MSG_CRLF
+	CALL	print
+	MOV		SI, MSG_CRLF
+	CALL	print
+
+	MOV		DI, 0x0A00
 	MOV		CX, 0x20
 	XOR		AL, AL
 	REP		STOSB

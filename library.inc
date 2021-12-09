@@ -270,7 +270,7 @@ Command:
 	RET
 
 .yes:
-	ADD		DI, 12	; Call Adress "Command Struct -> Command Process"
+	ADD		DI, 0x20C	; Call Adress "Command Struct -> Command Process"
 	JMP		FAR		DI
 
 	POP		DI

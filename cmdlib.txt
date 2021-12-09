@@ -6,8 +6,9 @@ DOSプロンプトから実行可能なコマンドの仕様一覧
     具体的な構造は以下のとおりです。
 
     Segment:Offset
-    0000:0000 〜 0000:000C -> Command Name ( 12 Bytes, and Null Character )
-    0000:000D 〜 ...       -> Command Process ( Any Bytes )
+    0000:0000 〜 0000:000C -> Command Name : label=[CommandName]._name ( 12 Bytes, and Null Character )
+    0000:000D 〜 0000:020C -> Command Help : label=[CommandName]._help ( 512 Bytes )
+    0000:000D 〜 ...       -> Command Process : label=[CommandName]._main ( Any Bytes )
 
     Command Name...
         Command Nameは、DOSプロンプトから実行する際に使用するコマンド名です。
@@ -15,6 +16,15 @@ DOSプロンプトから実行可能なコマンドの仕様一覧
         Command Nameが12バイトに満たなかった場合、残りのバイト数（たとえば、Command Nameで6バイト
         使用した場合、12-6 で残りの6バイト）はヌル文字（0x00）で埋められます。
         Command Nameの直後1バイトは必ずヌル文字（0x00）が入ります。
+
+    Command Help...
+        Command Helpは、Helpコマンドを使用して呼び出されます。
+        原則として、print関数を使用して自身のコマンドのヘルプ情報を表示する用途以外には
+        使用しないでください。
+        CALL 命令ではないので、必ず最後に RET 命令ではなく JMP 命令でリターンしなければなりません。
+        基本的には DOS.ASM のラベル ReturnAdrs にリターンする必要があります。
+        Command Helpが512バイトに満たなかった場合、残りのバイト数（たとえば、Command Nameで6バイト
+        使用した場合、12-6 で残りの6バイト）はヌル文字（0x00）で埋められます。
 
     Command Process...
         Command Processは、DOSプロンプトから入力されたコマンド名と自身の構造体に含まれる
