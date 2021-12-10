@@ -1,0 +1,5 @@
+DM_DOS_SYS_DOSPrompt_Memory_Start	EQU 0x0540
+DM_DOS_SYS_CommandAdress			EQU	0x0600
+DM_DOS_SYS_SplitedCommand			EQU	0x0700
+DM_DOS_SYS_DOSPrompt_Memory_End		EQU 0x07FF
+DM_DOS_SYS_DOSPrompt_Memory_Spaces	EQU	DM_DOS_SYS_DOSPrompt_Memory_End - DM_DOS_SYS_DOSPrompt_Memory_Start
