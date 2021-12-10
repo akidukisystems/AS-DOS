@@ -23,3 +23,5 @@ MemMap
 	( 0x07A0 ~ 32Bytes ( 0x07BF ) ) : Command Parameter		*
 	( 0x07C0 ~ 32Bytes ( 0x07DF ) ) : Command Parameter		*
 	( 0x07E0 ~ 32Bytes ( 0x07FF ) ) : Command Parameter		*
+
+0x0A00 ~  512Bytes ( 0x0C00 )	: Free
