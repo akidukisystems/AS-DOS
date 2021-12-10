@@ -67,6 +67,7 @@ $(FLIMG): $(BOOTSECT) $(SYSTEM) $(DOS) Makefile
 
 	
 run: $(FLIMG) Makefile
+	make -r clean
 	make -r $(FLIMG)
 	qemu-system-i386 -drive file=$(FLIMG),format=raw,if=floppy -monitor stdio
 	
