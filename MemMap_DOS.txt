@@ -10,6 +10,8 @@ MemMap
 		0x0520 : Video Mode
 		0x0521 : Unknown
 		0x0522 : Video Page Index
+	0x0523							: Time Zone 
+	0x0524							: Sign
 
 0x0540 ~ 447Bytes ( 0x07FF )	: DOSPrompt
 	0x0542 ~ 1Byte					: Writed String Counter

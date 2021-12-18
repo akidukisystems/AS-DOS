@@ -6,9 +6,15 @@ DOSプロンプトから実行可能なコマンドの仕様一覧
     具体的な構造は以下のとおりです。
 
     Segment:Offset
-    0000:0000 〜 0000:000C -> Command Name : label=[CommandName]._name ( 12 Bytes, and Null Character )
-    0000:000D 〜 0000:020C -> Command Help : label=[CommandName]._help ( 512 Bytes )
-    0000:000D 〜 ...       -> Command Process : label=[CommandName]._main ( Any Bytes )
+    0000:0000 〜 0000:000C -> Command Name ( 12 Bytes, and Null Character ) :   label=._name
+    0000:000D 〜 0000:020C -> Command Help ( 512 Bytes ) :                      label=._help
+    0000:000D 〜 ...       -> Command Process ( Any Bytes ) :                   label=._main
+
+    註：各データが配置されているアドレスを直接参照できるようにするため、指定されたラベル（label=の部分）を
+    　　各データの先頭部分に配置してください。
+        また、各データにあるラベルは構造体の中で共有されるため、ラベル名が競合しないように注意してください。
+        （例：CMD構造体内のデータhelpで作成したラベルMSGと、同構造体内のデータmainで作成したラベルMSGは
+        　　　競合してしまいます。）
 
     Command Name...
         Command Nameは、DOSプロンプトから実行する際に使用するコマンド名です。

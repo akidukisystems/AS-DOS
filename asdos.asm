@@ -44,6 +44,9 @@ CannotGetMemSize:
 	MOV		WORD [0x0520], AX
 	MOV		BYTE [0x0522], BH
 
+	MOV		BYTE [0x0523], 9	; Time Zone
+	MOV		BYTE [0x0524], 0	; Sign
+
 	
 	XOR		AX, AX
 	MOV		BX, AX

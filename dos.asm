@@ -452,6 +452,40 @@ DCMD_TIME:
 	MOV		SI, 0x0A10
 	CALL	Hex2AsciiMB
 
+	; Time Zone
+	MOV		BH, BYTE [0x0A01]
+	MOV		CH, BYTE [0x0524]
+	OR		CH, CH
+	JZ		._main_plus
+
+	SUB		BH, BYTE [0x0523]
+	MOV		AH, BH
+	AND		AH, 0x0F
+	CMP		AH, 0x0A
+	JAE		._main_alp
+	JMP		._main_alp_ret
+
+._main_alp:
+	SUB		BH, 0x06
+
+._main_alp_ret:
+	JMP		._main_plus_ret
+
+._main_plus:
+	ADD		BH, BYTE [0x0523]
+
+._main_plus_ret:
+	CMP		BH, 0x24
+	JAE		._main_over
+	JMP		._main_over_ret
+
+._main_over:
+	
+	SUB		BH, 0x24
+
+._main_over_ret:
+	MOV		BYTE [0x0A01], BH
+
 	MOV		BX, 0x0A01
 	MOV		SI, 0x0A13
 	CALL	Hex2AsciiMB
